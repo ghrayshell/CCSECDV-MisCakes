@@ -1,6 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Pridi:wght@200;300;400;500;600;700&family=Roboto:wght@100&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Fjalla+One&display=swap");
 @import url('https://fonts.cdnfonts.com/css/kestoy-selfie');
+@import "tailwindcss";
 
 /* :root {
   font-size: 16px; 

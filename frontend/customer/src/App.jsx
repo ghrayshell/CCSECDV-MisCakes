@@ -1,3 +1,5 @@
+import './global.css';
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // pages
@@ -17,6 +19,7 @@ import OrderForm from './pages/ourproducts/orderform/OrderForm';
 import CustomerInfo from './pages/ourproducts/orderform/components/CustomerInfo';
 import OrderDetails from './pages/ourproducts/orderform/components/OrderDetails';
 import DeliveryDetails from './pages/ourproducts/orderform/components/DeliveryDetails';
+import RedButton from './red_button';
 
 function App() {
     return (
@@ -36,6 +39,8 @@ function App() {
                         <Route exact path="/customerinfo" element={<CustomerInfo />} />
                         <Route exact path="/orderdetails" element={<OrderDetails />} />
                         <Route exact path="/deliverydetails" element={<DeliveryDetails />} />
+                        <Route exact path="/redbutton" element={<RedButton />} />
+
                     </Routes>
                 </div>
                 <Footer />
