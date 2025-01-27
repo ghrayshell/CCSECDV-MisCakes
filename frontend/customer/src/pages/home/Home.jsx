@@ -53,10 +53,12 @@ const Home = () => {
 
     return (
         <main>
-            <div className="image-carousel-container">
+            {/* <div className="image-carousel-container">
                 <ImageCarousel imageUrls={[img1, img2, img3, img4]} />
-            </div>
-            <p className="tagline">no mistake with mis&apos;cake</p>
+            </div> */}
+            {/* <p className="tagline">no mistake with mis&apos;cake</p> */}
+
+            <div className="p-4"></div>
 
             <img src={middle_partition} role="middle-partition" alt="middle-partition" className="partition-image" />
 

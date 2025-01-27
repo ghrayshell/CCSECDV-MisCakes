@@ -12,11 +12,12 @@ header img {
   height: 5.2rem;
   width: 5rem;
   margin-left: 123px;
+  /* margin-right: 50px; */
 }
 
 nav {
   height: 100%;
-  margin-right: 112px;
+  /* margin-right: 112px; */
 }
 
 ul {
