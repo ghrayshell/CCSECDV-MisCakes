@@ -4,6 +4,7 @@ const controller = require('../controllers/controller.js');
 const orderController = require('../controllers/orderController.js');
 const contactController = require('../controllers/contactController.js');
 const productController = require('../controllers/productController.js');
+const registerController = require('../controllers/registerController.js');
 
 const app = express();
 
@@ -27,5 +28,7 @@ app.get('/getAllProducts', productController.getAllProducts);
 app.post('/updateProduct/:productId', productController.updateProduct);
 app.get('/deleteProduct/:productId', productController.deleteProduct);
 app.get('/deleteAllProducts', productController.deleteAllProducts);
+
+app.post('/register', registerController.addUser);
 
 module.exports = app;
