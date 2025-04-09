@@ -129,40 +129,34 @@ const RegisterPage = () => {
                   value={password} 
                   onChange={(e) => setPassword(e.target.value)} 
                   error={false}
-                  inputClass={passwordValidations.length && passwordValidations.uppercase && passwordValidations.number && passwordValidations.specialChar ? 'border border-green-500' : ''}
+                  inputClass={passwordValidations.length && passwordValidations.uppercase && passwordValidations.number && passwordValidations.specialChar ? 'border border-green-500' : 'border border-red-500'}
                 />
                 
-                {/* Password Complexity Checkboxes and Green Message under First Password Input Field */}
+                {/* Password Complexity Checkboxes */}
                 <div className="mt-2 space-y-2">
-                  {passwordValidations.length && passwordValidations.uppercase && passwordValidations.number && passwordValidations.specialChar ? (
-                    <div className="text-green-500 text-sm mt-2">Password satisfies all complexity rules</div>
-                  ) : (
-                    <>
-                      {!passwordValidations.length && password && (
-                        <label className="flex items-center text-sm">
-                          <input type="checkbox" disabled checked={passwordValidations.length} />
-                          <span className="ml-2">Password must be at least 10 characters</span>
-                        </label>
-                      )}
-                      {!passwordValidations.uppercase && password && (
-                        <label className="flex items-center text-sm">
-                          <input type="checkbox" disabled checked={passwordValidations.uppercase} />
-                          <span className="ml-2">Password must contain at least one uppercase letter</span>
-                        </label>
-                      )}
-                      {!passwordValidations.number && password && (
-                        <label className="flex items-center text-sm">
-                          <input type="checkbox" disabled checked={passwordValidations.number} />
-                          <span className="ml-2">Password must contain at least one number</span>
-                        </label>
-                      )}
-                      {!passwordValidations.specialChar && password && (
-                        <label className="flex items-center text-sm">
-                          <input type="checkbox" disabled checked={passwordValidations.specialChar} />
-                          <span className="ml-2">Password must contain at least one special character</span>
-                        </label>
-                      )}
-                    </>
+                  {!passwordValidations.length && password && (
+                    <label className="flex items-center text-sm">
+                      <input type="checkbox" disabled checked={passwordValidations.length} />
+                      <span className="ml-2">Password must be at least 10 characters</span>
+                    </label>
+                  )}
+                  {!passwordValidations.uppercase && password && (
+                    <label className="flex items-center text-sm">
+                      <input type="checkbox" disabled checked={passwordValidations.uppercase} />
+                      <span className="ml-2">Password must contain at least one uppercase letter</span>
+                    </label>
+                  )}
+                  {!passwordValidations.number && password && (
+                    <label className="flex items-center text-sm">
+                      <input type="checkbox" disabled checked={passwordValidations.number} />
+                      <span className="ml-2">Password must contain at least one number</span>
+                    </label>
+                  )}
+                  {!passwordValidations.specialChar && password && (
+                    <label className="flex items-center text-sm">
+                      <input type="checkbox" disabled checked={passwordValidations.specialChar} />
+                      <span className="ml-2">Password must contain at least one special character</span>
+                    </label>
                   )}
                 </div>
 
