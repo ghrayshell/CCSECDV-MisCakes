@@ -1,7 +1,8 @@
 import React, { useState } from 'react'; 
 import { motion, AnimatePresence } from 'framer-motion'; 
 import { Mail, Lock, User, ArrowRight, Github, Twitter } from 'lucide-react'; 
-import { Link } from 'react-router-dom'; 
+import { Link, useNavigate } from 'react-router-dom'; 
+import axios from 'axios';
 
 const formVariants = { 
   hidden: { opacity: 0, x: -30 }, 
@@ -26,8 +27,23 @@ const LoginSignUpPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
+    const navigate = useNavigate();
 
     const toggleMode = () => setIsLogin(!isLogin);
+
+    const handleLogin = async (e) => {
+      e.preventDefault();
+
+      try{
+        const res = await axios.post("http://localhost:4000/login", { email, password }, { withCredentials: true });
+        if (res.data.redirectTo) {
+          // Use React Router's navigate function to redirect without reloading the page
+          navigate(res.data.redirectTo);  // This will navigate to /home
+        }
+      } catch(error){
+        console.log(error.response?.data?.message || "Something went wrong");
+      }
+    }
 
     return (
         
@@ -76,7 +92,9 @@ const LoginSignUpPage = () => {
                   <div className="mt-8 space-y-4">
                     <Link to="/home">
                       <button
-                        className={`text-white px-6 py-3 rounded-lg w-full flex items-center justify-center hover:bg-orange-700 hover:cursor-pointer ${isLogin ? 'bg-orange-600' : 'bg-green-600'}`}
+                        onClick={handleLogin}
+                        className={`text-white px-6 py-3 rounded-lg w-full flex items-center justify-center hover:bg-orange-700 hover:cursor-pointer ${isLogin ? 'bg-orange-600' : 'bg-green-600'}`
+                      }
                       >
                         {isLogin ? 'Sign In' : 'Sign Up'} <ArrowRight className="ml-2" size={20} />
                       </button>
