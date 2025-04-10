@@ -9,21 +9,42 @@ const formVariants = {
   visible: { opacity: 1, x: 0 },
 };
 
-const InputField = ({ icon: Icon, placeholder, type, value, onChange, error, errorMessage, inputClass }) => (
+const InputField = ({
+  icon: Icon,
+  placeholder,
+  type,
+  value,
+  onChange,
+  error,
+  errorMessage,
+  success,
+  successMessage,
+  inputClass
+}) => (
   <div>
-    <div className={`flex items-center bg-gray-100 p-3 rounded-lg ${error ? 'border border-red-500' : inputClass}`}>
-      <Icon className="text-gray-500 mr-3" size={20} /> 
-      <input 
-        type={type} 
-        placeholder={placeholder} 
-        value={value} 
-        onChange={onChange} 
+    <div className={`flex items-center bg-gray-100 p-3 rounded-lg 
+      ${error ? 'border border-red-500' : success ? 'border border-green-500' : inputClass}`}>
+      <Icon className="text-gray-500 mr-3" size={20} />
+      <input
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
         className="bg-transparent outline-none flex-1 text-gray-800"
       />
     </div>
-    <div className="text-sm h-2 text-red-500">{error ? errorMessage : ""}</div>
+    <div className="text-sm h-2">
+      {error ? (
+        <span className="text-red-500">{errorMessage}</span>
+      ) : success ? (
+        <span className="text-green-600">{successMessage}</span>
+      ) : (
+        ""
+      )}
+    </div>
   </div>
 );
+
 
 const RegisterPage = () => {
   const [email, setEmail] = useState('');
@@ -55,34 +76,73 @@ const RegisterPage = () => {
 
   // Email validation
   useEffect(() => {
-    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-    setEmailValid(emailRegex.test(email));
-
-    // Simulate email exists check
-    const existingEmails = ['existing@example.com', 'test@example.com'];
-    setEmailExists(existingEmails.includes(email));
-  }, [email]);
+    const checkEmail = async () => {
+      const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+      const isValidFormat = emailRegex.test(email);
+      setEmailValid(isValidFormat);
+  
+      if (!email || !isValidFormat) {
+        setEmailExists(false);
+        return;
+      }
+  
+      try {
+        const res = await axios.post("http://localhost:4000/check-email", { email });
+        console.log("EMAIL CHECK RESPONSE:", res.data); // 👉 add this!
+        setEmailExists(res.data.exists);
+      } catch (error) {
+        console.error("Error checking email:", error);
+        setEmailExists(false);
+      }
+    };
+  
+    checkEmail();
+  }, [email]);  
+  
 
   const isFormValid = emailValid && !emailExists && password && confirmpassword && !passwordsDoNotMatch &&
     passwordValidations.length && passwordValidations.uppercase && passwordValidations.number && passwordValidations.specialChar;
 
+  const [error, setError] = useState('');
+
   const handleRegister = async (e) => {
     e.preventDefault();
+    setError('');
+    console.log("HANDLE REGISTER CLICKED");
 
-    if (isFormValid) {
-      setSuccess(true); 
-      setTimeout(() => {
-        navigate("/");
-      }, 1000);
+    console.log("Form State Check:", {
+      emailValid,
+      emailExists,
+      password,
+      confirmpassword,
+      passwordsDoNotMatch,
+      passwordValidations,
+      isFormValid
+    });
+
+    if (!isFormValid) {
+      setError("Please fill in all required fields correctly.");
+      return;
+    }
+
+    if (emailExists) {
+      setError("Email already exists.");
+      return;
     }
 
     try {
       const res = await axios.post("http://localhost:4000/register", { name, email, password });
-      console.log(res.data.message);
+      console.log("Registration response:", res.data);
+      setSuccess(true);
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
     } catch (error) {
-      console.log(error.response?.data?.message || "Something went wrong");
+      console.error("Registration failed:", error.response?.data?.message || error.message);
+      setError("Something went wrong. Please try again.");
     }
   };
+
 
   return (
     <div className="flex flex-col md:flex-row h-screen">
@@ -97,12 +157,15 @@ const RegisterPage = () => {
               variants={formVariants}
               transition={{ duration: 0.3 }}
             >
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-800 text-center">
+              <h1 className="text-3xl md:text-4xl mb-5 font-bold text-gray-800 text-center">
                 {'Create account'}
               </h1>
-              <div className="text-green-600 h-10 text-lg font-semibold text-center">
-                {success ? "Registration Successful!" : ""}
-              </div>
+              {success && (
+                <div className="bg-green-100 text-green-700 p-3 rounded-lg mb-4 text-sm text-center">
+                  Registration Successful!
+                </div>
+              )}
+
 
               <div className="space-y-4">
                 <InputField 
@@ -129,40 +192,70 @@ const RegisterPage = () => {
                   value={password} 
                   onChange={(e) => setPassword(e.target.value)} 
                   error={false}
-                  inputClass={password && (passwordValidations.length || passwordValidations.uppercase || passwordValidations.number || passwordValidations.specialChar) ? 'border border-red-500' : (passwordValidations.length && passwordValidations.uppercase && passwordValidations.number && passwordValidations.specialChar ? 'border border-green-500' : '')}
+                  success={
+                    password &&
+                    passwordValidations.length &&
+                    passwordValidations.uppercase &&
+                    passwordValidations.number &&
+                    passwordValidations.specialChar
+                  }
+                  successMessage="Password satisfies all complexity rules!"
+                  inputClass=""
                 />
                 
                 {/* Password Complexity Checkboxes */}
-                <div className="mt-2 space-y-2">
-                  {password && (
-                    <>
-                      {!passwordValidations.length && (
-                        <label className="flex items-center text-sm">
-                          <input type="checkbox" disabled checked={passwordValidations.length} />
-                          <span className="ml-2">Password must be at least 10 characters</span>
-                        </label>
-                      )}
-                      {!passwordValidations.uppercase && (
-                        <label className="flex items-center text-sm">
-                          <input type="checkbox" disabled checked={passwordValidations.uppercase} />
-                          <span className="ml-2">Password must contain at least one uppercase letter</span>
-                        </label>
-                      )}
-                      {!passwordValidations.number && (
-                        <label className="flex items-center text-sm">
-                          <input type="checkbox" disabled checked={passwordValidations.number} />
-                          <span className="ml-2">Password must contain at least one number</span>
-                        </label>
-                      )}
-                      {!passwordValidations.specialChar && (
-                        <label className="flex items-center text-sm">
-                          <input type="checkbox" disabled checked={passwordValidations.specialChar} />
-                          <span className="ml-2">Password must contain at least one special character</span>
-                        </label>
-                      )}
-                    </>
-                  )}
-                </div>
+                {password && !(
+  passwordValidations.length &&
+  passwordValidations.uppercase &&
+  passwordValidations.number &&
+  passwordValidations.specialChar
+) && (
+  <div className="mt-2 space-y-2">
+    <label className={`flex items-center text-sm ${passwordValidations.length ? 'text-green-600' : 'text-red-500'}`}>
+      <input
+        type="checkbox"
+        disabled
+        checked={passwordValidations.length}
+        className={`mr-2 ${passwordValidations.length ? 'accent-green-600' : 'accent-red-500'}`}
+      />
+      <span>Password must be at least 10 characters</span>
+    </label>
+
+    <label className={`flex items-center text-sm ${passwordValidations.uppercase ? 'text-green-600' : 'text-red-500'}`}>
+      <input
+        type="checkbox"
+        disabled
+        checked={passwordValidations.uppercase}
+        className={`mr-2 ${passwordValidations.uppercase ? 'accent-green-600' : 'accent-red-500'}`}
+      />
+      <span>Password must contain at least one uppercase letter</span>
+    </label>
+
+    <label className={`flex items-center text-sm ${passwordValidations.number ? 'text-green-600' : 'text-red-500'}`}>
+      <input
+        type="checkbox"
+        disabled
+        checked={passwordValidations.number}
+        className={`mr-2 ${passwordValidations.number ? 'accent-green-600' : 'accent-red-500'}`}
+      />
+      <span>Password must contain at least one number</span>
+    </label>
+
+    <label className={`flex items-center text-sm ${passwordValidations.specialChar ? 'text-green-600' : 'text-red-500'}`}>
+      <input
+        type="checkbox"
+        disabled
+        checked={passwordValidations.specialChar}
+        className={`mr-2 ${passwordValidations.specialChar ? 'accent-green-600' : 'accent-red-500'}`}
+      />
+      <span>Password must contain at least one special character</span>
+    </label>
+  </div>
+)}
+
+
+
+
 
                 <InputField 
                   icon={Lock} 
@@ -172,6 +265,9 @@ const RegisterPage = () => {
                   onChange={(e) => setConfirmPassword(e.target.value)} 
                   error={passwordsDoNotMatch}
                   errorMessage="Passwords do not match"
+                  success={confirmpassword && confirmpassword === password}
+                  successMessage="Passwords match!"
+                  inputClass=""
                 />
               </div>
 

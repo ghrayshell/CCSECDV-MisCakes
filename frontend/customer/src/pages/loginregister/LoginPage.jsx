@@ -27,14 +27,16 @@ const LoginSignUpPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
+    const [error, setError] = useState('');
     const navigate = useNavigate();
 
     const toggleMode = () => setIsLogin(!isLogin);
 
     const handleLogin = async (e) => {
       e.preventDefault();
+      setError(''); // Clear any existing error
 
-      try{
+      try {
         const res = await axios.post("http://localhost:4000/login", { email, password }, { withCredentials: true });
         if (res.data.redirectTo) {
           // Use React Router's navigate function to redirect without reloading the page
@@ -43,11 +45,11 @@ const LoginSignUpPage = () => {
         }
       } catch(error){
         console.log(error.response?.data?.message || "Something went wrong");
+        setError("Invalid username and/or password!");
       }
     }
 
     return (
-        
         <div className="flex flex-col md:flex-row h-screen">
           <div className="w-full bg-white flex items-center justify-center p-8 md:p-16">
             <div className="w-full max-w-md">
@@ -64,6 +66,14 @@ const LoginSignUpPage = () => {
                   <h1 className="text-3xl md:text-4xl font-bold mb-8 text-gray-800">
                     {isLogin ? 'Welcome to MIS\'CAKES!' : 'Create account'}
                   </h1>
+
+                  {/* Show error message if exists */}
+                  {error && (
+                    <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4 text-sm text-center">
+                      {error}
+                    </div>
+                  )}
+
                   <div className="space-y-4">
                     {!isLogin && (
                       <InputField 
@@ -94,8 +104,7 @@ const LoginSignUpPage = () => {
                     <Link to="/home">
                       <button
                         onClick={handleLogin}
-                        className={`text-white px-6 py-3 rounded-lg w-full flex items-center justify-center hover:bg-orange-700 hover:cursor-pointer ${isLogin ? 'bg-orange-600' : 'bg-green-600'}`
-                      }
+                        className={`text-white px-6 py-3 rounded-lg w-full flex items-center justify-center hover:bg-orange-700 hover:cursor-pointer ${isLogin ? 'bg-orange-600' : 'bg-green-600'}`}
                       >
                         {isLogin ? 'Sign In' : 'Sign Up'} <ArrowRight className="ml-2" size={20} />
                       </button>
