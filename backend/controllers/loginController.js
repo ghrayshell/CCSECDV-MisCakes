@@ -67,6 +67,22 @@ const loginController = {
         // Respond with a success message
         res.status(200).json({ message: 'Logged out successfully' });
       });
+    },
+    checkEmail: async function(req, res){
+      try {
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ message: 'Email is required' });
+        
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+           return res.json({ exists: true });
+         }
+        
+        res.json({ exists: false });
+      } catch (error) {
+        console.error('Error checking email:', error);
+         res.status(500).json({ message: 'Internal server error' });
+      }
     }
   };
   

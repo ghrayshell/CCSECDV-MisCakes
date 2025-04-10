@@ -42,7 +42,14 @@ function App() {
     }
   };
 
+  const publicRoutes = ['/', '/signup'];
+
   useEffect(() => {
+    // Skip authentication check for public routes
+    if (publicRoutes.includes(location.pathname)) {
+      return;
+    }
+
     // Check the current user
     fetch('http://localhost:4000/current_user', { 
       method: 'GET',

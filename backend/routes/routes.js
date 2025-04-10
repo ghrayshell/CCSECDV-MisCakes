@@ -46,22 +46,7 @@ app.get('/deleteAllProducts', productController.deleteAllProducts);
 app.get('/getAllUsers', userController.getAllUsers);
 app.put("/users/:id/role", userController.updateRole);
 
-app.post('/check-email', async (req, res) => {
-    try {
-      const { email } = req.body;
-      if (!email) return res.status(400).json({ message: 'Email is required' });
-  
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-        return res.json({ exists: true });
-      }
-  
-      res.json({ exists: false });
-    } catch (error) {
-      console.error('Error checking email:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });  
+app.post('/check-email', loginController.checkEmail);
 app.get('/logout', loginController.logoutUser);
 
 module.exports = app;
