@@ -6,20 +6,48 @@ const loginController = {
     loginUser: async function (req, res, next) {
       // Passport will handle the login and session management
       console.log('Trying to authenticate:', req.body);
-      const {email, password} = req.body;
-
+      const { email, password } = req.body;
+    
       try {
         // Find the user in the database by email
         const user = await User.findOne({ email });
         if (!user) {
           return res.status(401).send('Invalid email or password');
         }
-    
+
+        const MAX_ATTEMPTS = 5;
+        const LOCK_TIME_MS = 2 * 60 * 1000; // 2 minutes
+
+        // Block login if too many failed attempts
+        if (user.invalidAttempts >= MAX_ATTEMPTS) {
+          const now = Date.now();
+          const lastAttempt = user.lastAttempt ? new Date(user.lastAttempt).getTime() : 0;
+          const timeSinceLastAttempt = now - lastAttempt;
+
+          if (timeSinceLastAttempt < LOCK_TIME_MS) {
+            const remaining = Math.ceil((LOCK_TIME_MS - timeSinceLastAttempt) / 1000);
+            return res.status(403).send(`Too many attempts! Try again in ${remaining} seconds.`);
+          } else {
+            await user.save();
+          }
+        }
+
         // Compare the entered password with the stored hashed password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
+          // Increment invalidAttempts and update lastAttempt on failed login
+          await User.findByIdAndUpdate(user._id, {
+            $inc: { invalidAttempts: 1 },
+            $set: { lastAttempt: new Date() }
+          });
+    
           return res.status(401).send('Invalid email or password');
         }
+    
+        // ✅ If login is successful, reset invalidAttempts and update lastAttempt
+        user.invalidAttempts = 0;
+        user.lastAttempt = new Date();
+        await user.save();
     
         // Store the user info in the session after successful login
         req.session.user = user._id;
@@ -28,7 +56,7 @@ const loginController = {
         console.error(err);
         res.status(500).send('Server error');
       }
-    }, 
+    },  
     currentUser: async function (req, res) {
         console.log('Session ID:', req.session.user);
         const currentUser = (await User.findById(req.session.user).select('name'))?.name;
@@ -61,6 +89,9 @@ const loginController = {
           return res.status(500).json({ message: 'Failed to log out' });
         }
     
+        // Reset invalidAttempts
+        user.invalidAttempts = 0;
+
         // Clear the session cookie
         res.clearCookie('connect.sid'); // 'connect.sid' is the default cookie name for sessions in Express
     

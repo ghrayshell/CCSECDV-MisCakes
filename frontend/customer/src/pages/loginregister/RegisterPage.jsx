@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion'; 
-import { Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, MailQuestion, Info, Book } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -60,6 +60,9 @@ const RegisterPage = () => {
   });
   const [emailValid, setEmailValid] = useState(true);
   const [emailExists, setEmailExists] = useState(false);
+  const [error, setError] = useState('');
+  const [resetQuestion, setResetQuestion] = useState('');
+  const [resetAnswer, setResetAnswer] = useState('');
   const navigate = useNavigate();
 
   const passwordsDoNotMatch = password && confirmpassword && password !== confirmpassword;
@@ -100,10 +103,14 @@ const RegisterPage = () => {
   }, [email]);  
   
 
-  const isFormValid = emailValid && !emailExists && password && confirmpassword && !passwordsDoNotMatch &&
-    passwordValidations.length && passwordValidations.uppercase && passwordValidations.number && passwordValidations.specialChar;
-
-  const [error, setError] = useState('');
+  const isFormValid = emailValid && !emailExists &&
+    password && confirmpassword &&
+    !passwordsDoNotMatch &&
+    passwordValidations.length &&
+    passwordValidations.uppercase &&
+    passwordValidations.number &&
+    passwordValidations.specialChar &&
+    resetQuestion && resetAnswer;
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -131,7 +138,14 @@ const RegisterPage = () => {
     }
 
     try {
-      const res = await axios.post("http://localhost:4000/register", { name, email, password });
+      const res = await axios.post("http://localhost:4000/register", {
+        name,
+        email,
+        password,
+        resetQuestion: resetQuestion,
+        resetAnswer: resetAnswer
+      });
+
       console.log("Registration response:", res.data);
       setSuccess(true);
       setTimeout(() => {
@@ -142,7 +156,6 @@ const RegisterPage = () => {
       setError("Something went wrong. Please try again.");
     }
   };
-
 
   return (
     <div className="flex flex-col md:flex-row h-screen">
@@ -205,57 +218,54 @@ const RegisterPage = () => {
                 
                 {/* Password Complexity Checkboxes */}
                 {password && !(
-  passwordValidations.length &&
-  passwordValidations.uppercase &&
-  passwordValidations.number &&
-  passwordValidations.specialChar
-) && (
-  <div className="mt-2 space-y-2">
-    <label className={`flex items-center text-sm ${passwordValidations.length ? 'text-green-600' : 'text-red-500'}`}>
-      <input
-        type="checkbox"
-        disabled
-        checked={passwordValidations.length}
-        className={`mr-2 ${passwordValidations.length ? 'accent-green-600' : 'accent-red-500'}`}
-      />
-      <span>Password must be at least 10 characters</span>
-    </label>
+                    passwordValidations.length &&
+                    passwordValidations.uppercase &&
+                    passwordValidations.number &&
+                    passwordValidations.specialChar
+                  ) && (
+                    <div className="mt-2 space-y-2">
+                      <label className={`flex items-center text-sm ${passwordValidations.length ? 'text-green-600' : 'text-red-500'}`}>
+                        <input
+                          type="checkbox"
+                          disabled
+                          checked={passwordValidations.length}
+                          className={`mr-2 ${passwordValidations.length ? 'accent-green-600' : 'accent-red-500'}`}
+                        />
+                        <span>Password must be at least 10 characters</span>
+                      </label>
 
-    <label className={`flex items-center text-sm ${passwordValidations.uppercase ? 'text-green-600' : 'text-red-500'}`}>
-      <input
-        type="checkbox"
-        disabled
-        checked={passwordValidations.uppercase}
-        className={`mr-2 ${passwordValidations.uppercase ? 'accent-green-600' : 'accent-red-500'}`}
-      />
-      <span>Password must contain at least one uppercase letter</span>
-    </label>
+                      <label className={`flex items-center text-sm ${passwordValidations.uppercase ? 'text-green-600' : 'text-red-500'}`}>
+                        <input
+                          type="checkbox"
+                          disabled
+                          checked={passwordValidations.uppercase}
+                          className={`mr-2 ${passwordValidations.uppercase ? 'accent-green-600' : 'accent-red-500'}`}
+                        />
+                        <span>Password must contain at least one uppercase letter</span>
+                      </label>
 
-    <label className={`flex items-center text-sm ${passwordValidations.number ? 'text-green-600' : 'text-red-500'}`}>
-      <input
-        type="checkbox"
-        disabled
-        checked={passwordValidations.number}
-        className={`mr-2 ${passwordValidations.number ? 'accent-green-600' : 'accent-red-500'}`}
-      />
-      <span>Password must contain at least one number</span>
-    </label>
+                      <label className={`flex items-center text-sm ${passwordValidations.number ? 'text-green-600' : 'text-red-500'}`}>
+                        <input
+                          type="checkbox"
+                          disabled
+                          checked={passwordValidations.number}
+                          className={`mr-2 ${passwordValidations.number ? 'accent-green-600' : 'accent-red-500'}`}
+                        />
+                        <span>Password must contain at least one number</span>
+                      </label>
 
-    <label className={`flex items-center text-sm ${passwordValidations.specialChar ? 'text-green-600' : 'text-red-500'}`}>
-      <input
-        type="checkbox"
-        disabled
-        checked={passwordValidations.specialChar}
-        className={`mr-2 ${passwordValidations.specialChar ? 'accent-green-600' : 'accent-red-500'}`}
-      />
-      <span>Password must contain at least one special character</span>
-    </label>
-  </div>
-)}
-
-
-
-
+                      <label className={`flex items-center text-sm ${passwordValidations.specialChar ? 'text-green-600' : 'text-red-500'}`}>
+                        <input
+                          type="checkbox"
+                          disabled
+                          checked={passwordValidations.specialChar}
+                          className={`mr-2 ${passwordValidations.specialChar ? 'accent-green-600' : 'accent-red-500'}`}
+                        />
+                        <span>Password must contain at least one special character</span>
+                      </label>
+                    </div>
+                  )
+                }
 
                 <InputField 
                   icon={Lock} 
@@ -267,6 +277,34 @@ const RegisterPage = () => {
                   errorMessage="Passwords do not match"
                   success={confirmpassword && confirmpassword === password}
                   successMessage="Passwords match!"
+                  inputClass=""
+                />
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Select a password reset question</label>
+                  <select
+                    value={resetQuestion}
+                    onChange={(e) => setResetQuestion(e.target.value)}
+                    className="w-full p-3 bg-gray-100 rounded-lg text-gray-800 outline-none"
+                  >
+                    <option value="">-- Choose a question --</option>
+                    <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                    <option value="What is the name of your first pet?">What is the name of your first pet?</option>
+                    <option value="What's your grandmother's first name?">What's your grandmother's first name?</option>
+                    <option value="What city were you born in?">What city were you born in?</option>
+                    <option value="In what city or town did your parents meet?">In what city or town did your parents meet?</option>
+                    <option value="What was the first concert you attended?">What was the first concert you attended?</option>
+                  </select>
+                </div>
+
+                <InputField
+                  icon={Book}
+                  placeholder="Answer to password reset question"
+                  type="text"
+                  value={resetAnswer}
+                  onChange={(e) => setResetAnswer(e.target.value)}
+                  error={!resetAnswer && resetQuestion} // error if question selected but no answer
+                  errorMessage="Please provide an answer"
                   inputClass=""
                 />
               </div>

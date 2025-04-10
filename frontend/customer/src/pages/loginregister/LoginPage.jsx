@@ -43,9 +43,10 @@ const LoginSignUpPage = () => {
           // setIsAuthenticated(true); 
           navigate(res.data.redirectTo);  // This will navigate to /home
         }
-      } catch(error){
-        console.log(error.response?.data?.message || "Something went wrong");
-        setError("Invalid username and/or password!");
+      } catch (error) {
+        const message = error.response?.data || "Something went wrong";
+        console.log("Login error:", message);
+        setError(typeof message === 'string' ? message : message.message);
       }
     }
 
