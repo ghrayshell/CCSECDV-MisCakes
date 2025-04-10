@@ -1,103 +1,97 @@
 import './global.css';
-
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 // pages
 import { Home } from './pages/home/Home';
 import OurStory from './pages/ourstory/OurStory';
 import OurProducts from './pages/ourproducts/OurProducts';
 import ContactUs from './pages/contactus/ContactUs';
-
 import ProductDetails from './pages/productdetails/ProductDetails';
-
-// components
-import Navbar from './components/navbar/Navbar';
-import Footer from './components/footer/Footer';
 import OrderForm from './pages/ourproducts/orderform/OrderForm';
 
-//test components
+// test components
 import CustomerInfo from './pages/ourproducts/orderform/components/CustomerInfo';
 import OrderDetails from './pages/ourproducts/orderform/components/OrderDetails';
 import DeliveryDetails from './pages/ourproducts/orderform/components/DeliveryDetails';
 import RedButton from './red_button';
+
+// auth
 import LoginSignUpPage from './pages/loginregister/LoginPage';
-import IsNavBar from './components/navbar/IsNavBar';
-import RegisterPage from './pages/loginregister/RegisterPage'
+import RegisterPage from './pages/loginregister/RegisterPage';
 import ProtectedRoute from './components/protectedRoute/ProtectedRoute';
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import Admin from './pages/admin/Admin';
+
+// layout components
+import Navbar from './components/navbar/Navbar';
+import Footer from './components/footer/Footer';
+import IsNavBar from './components/navbar/IsNavBar';
 
 function App() {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const location = useLocation();
 
-    // Authenticate User
-    useEffect(() => {
-        const checkAuthentication = async () => {
-          try {
-            const response = await axios.get('http://localhost:4000/current_user', { withCredentials: true });
+  const checkAuthentication = async () => {
+    try {
+      const response = await axios.get('http://localhost:4000/current_user', { withCredentials: true });
+      return response.status === 200;
+    } catch (error) {
+      return false;
+    }
+  };
 
-            console.log(response);
-    
-            if (response.status === 200) {
-              setIsAuthenticated(true);
-              console.log('HELLO');
-            //   setUser(response.data.user); // Store the user data if authenticated
-            } else {
-              setIsAuthenticated(false);
-              // setUser(null); // Clear user data if not authenticated
-            }
-          } catch (error) {
-            console.log('Error: ', error); // Handle errors (e.g., no session or expired token)
-            setIsAuthenticated(false);
-            // setUser(null);
-          }
-        };
-    
-        // Check authentication immediately
-        checkAuthentication();
-    
-        // Set up a polling mechanism to check authentication every 5 seconds (5000ms)
-        const intervalId = setInterval(checkAuthentication, 5000);
-    
-        // Clean up interval when the component unmounts to prevent memory leaks
-        return () => clearInterval(intervalId);
-    
-      }, []); 
+  const showNavbarRoutes = [
+    '/home',
+    '/ourstory',
+    '/ourproducts',
+    '/contactus',
+    '/order/:id',
+    '/customerinfo',
+    '/orderdetails',
+    '/deliverydetails'
+  ];
 
-    return (
-        <div className="App">
-            <Router>
-                <IsNavBar>
-                   <Navbar />
-                </IsNavBar>
-                
-                <div className="pages">
-                    <Routes>
-                        <Route exact path="/" element={<LoginSignUpPage />} />
-                        <Route
-                            path="/home"
-                            element={<ProtectedRoute element={<Home />} isAuthenticated={isAuthenticated} />}
-                        />
-                        {/* <Route exact path ="/home" element={Home}></Route> */}
-                        <Route exact path="/ourstory" element={<ProtectedRoute element={<OurStory />} isAuthenticated={isAuthenticated}></ProtectedRoute>} />
-                        <Route exact path="/ourproducts" element={<ProtectedRoute element={<OurProducts></OurProducts>} isAuthenticated={isAuthenticated}></ProtectedRoute>} />
-                        <Route exact path="/contactus" element={<ProtectedRoute element={<ContactUs></ContactUs>} isAuthenticated={isAuthenticated}></ProtectedRoute>} />
-                        <Route exact path="/ourproducts/:id" element={<ProtectedRoute element={<ProductDetails />} isAuthenticated={isAuthenticated}></ProtectedRoute>} />
-                        <Route exact path="/order/:id" element={<ProtectedRoute element={<OrderForm />} isAuthenticated={isAuthenticated}></ProtectedRoute>} />
-                        <Route exact path="/signup" element={<RegisterPage />} />
-                        
-                        {/* For testing components only */}
-                        <Route exact path="/customerinfo" element={<CustomerInfo />} />
-                        <Route exact path="/orderdetails" element={<OrderDetails />} />
-                        <Route exact path="/deliverydetails" element={<DeliveryDetails />} />
-                        <Route exact path="/redbutton" element={<RedButton />} />
+  // Use pattern matching for dynamic routes if needed
+  const shouldShowNavbar = showNavbarRoutes.some((route) => {
+    if (route.includes(':')) {
+      const base = route.split('/:')[0];
+      return location.pathname.startsWith(base);
+    }
+    return route === location.pathname;
+  });
 
-                    </Routes>
-                </div>
-                <Footer />
-            </Router>
-        </div>
-    );
+  return (
+    <div className="App">
+      {shouldShowNavbar && (
+        <IsNavBar>
+          <Navbar />
+        </IsNavBar>
+      )}
+
+      <div className="pages">
+        <Routes>
+          <Route path="/" element={<LoginSignUpPage />} />
+          <Route path="/signup" element={<RegisterPage />} />
+          <Route path="/home" element={<ProtectedRoute element={<Home />} isAuthenticated={checkAuthentication} />} />
+          <Route path="/ourstory" element={<ProtectedRoute element={<OurStory />} isAuthenticated={checkAuthentication} />} />
+          <Route path="/ourproducts" element={<ProtectedRoute element={<OurProducts />} isAuthenticated={checkAuthentication} />} />
+          <Route path="/contactus" element={<ProtectedRoute element={<ContactUs />} isAuthenticated={checkAuthentication} />} />
+          <Route path="/ourproducts/:id" element={<ProtectedRoute element={<ProductDetails />} isAuthenticated={checkAuthentication} />} />
+          <Route path="/order/:id" element={<ProtectedRoute element={<OrderForm />} isAuthenticated={checkAuthentication} />} />
+          <Route path="/admin" element={<Admin />} />
+          {/* Testing */}
+          <Route path="/customerinfo" element={<CustomerInfo />} />
+          <Route path="/orderdetails" element={<OrderDetails />} />
+          <Route path="/deliverydetails" element={<DeliveryDetails />} />
+          <Route path="/redbutton" element={<RedButton />} />
+        </Routes>
+      </div>
+      {shouldShowNavbar && (
+        <Footer></Footer>
+      )}
+    </div>
+  );
 }
 
 export default App;

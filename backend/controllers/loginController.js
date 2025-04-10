@@ -28,37 +28,6 @@ const loginController = {
         console.error(err);
         res.status(500).send('Server error');
       }
-    //   passport.authenticate('local', (err, user, info) => {
-    //     if (err) return next(err); // server or DB error
-  
-    //     if (!user) {
-    //       // user not found or password mismatch
-    //       return res.status(400).json({ error: info.message || 'Invalid credentials' });
-    //     }
-  
-    //     req.logIn(user, (err) => {
-    //       if (err) return next(err); // session error
-
-    //       console.log('User logged in:', req.user);
-    //       console.log('Session:', req.session);
-
-    //       req.session.passport = {
-    //         user: req.user._id
-    //       }
-  
-    //       // ✅ Login success
-    //       return res.status(200).json({
-    //             message: 'Logged in successfully',
-    //             user: {
-    //                 id: user._id,
-    //                 email: user.email,
-    //                 name: user.name,
-    //             },
-    //             redirectTo: '/home',
-    //         });
-    //     });
-        
-    //   })(req, res, next);
     }, 
     currentUser: function (req, res) {
         console.log('Session ID:', req.session.user);

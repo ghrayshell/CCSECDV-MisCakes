@@ -7,6 +7,7 @@ const productController = require('../controllers/productController.js');
 const registerController = require('../controllers/registerController.js');
 const loginController = require('../controllers/loginController.js');
 const ensureAuthenticated = require('../middleware/ensureAuthenticated.js');
+const userController = require('../controllers/registerController.js');
 
 const app = express();
 
@@ -41,6 +42,9 @@ app.get('/getAllProducts', productController.getAllProducts);
 app.post('/updateProduct/:productId', productController.updateProduct);
 app.get('/deleteProduct/:productId', productController.deleteProduct);
 app.get('/deleteAllProducts', productController.deleteAllProducts);
+
+app.get('/getAllUsers', userController.getAllUsers);
+app.put("/users/:id/role", userController.updateRole);
 
 
 

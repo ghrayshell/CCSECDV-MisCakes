@@ -38,6 +38,7 @@ const LoginSignUpPage = () => {
         const res = await axios.post("http://localhost:4000/login", { email, password }, { withCredentials: true });
         if (res.data.redirectTo) {
           // Use React Router's navigate function to redirect without reloading the page
+          // setIsAuthenticated(true); 
           navigate(res.data.redirectTo);  // This will navigate to /home
         }
       } catch(error){

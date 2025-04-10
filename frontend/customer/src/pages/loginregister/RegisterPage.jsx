@@ -197,4 +197,3 @@ const RegisterPage = () => {
 }
 
 export default RegisterPage;
-a
