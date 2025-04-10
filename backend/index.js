@@ -57,3 +57,10 @@ app.listen(port, function(){
     console.log('app listening at port ' + port);
 });
 
+app.post('/check-email', async (req, res) => {
+  const { email } = req.body;
+  const existingUser = await User.findOne({ email });
+  res.json({ exists: !!existingUser });
+});
+
+
