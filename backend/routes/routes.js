@@ -62,5 +62,6 @@ app.post('/check-email', async (req, res) => {
       res.status(500).json({ message: 'Internal server error' });
     }
   });  
+app.get('/logout', loginController.logoutUser);
 
 module.exports = app;
