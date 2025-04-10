@@ -1,5 +1,5 @@
 import './global.css';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -31,6 +31,7 @@ import IsNavBar from './components/navbar/IsNavBar';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const checkAuthentication = async () => {
     try {
@@ -40,6 +41,24 @@ function App() {
       return false;
     }
   };
+
+  useEffect(() => {
+    // Check the current user
+    fetch('http://localhost:4000/current_user', { 
+      method: 'GET',
+      credentials: 'include' // Ensure credentials (cookies) are included
+    })
+      .then((res) => {
+        if (res.status === 401) {
+          // If not authenticated, redirect to login page
+          navigate('/');
+        }
+      })
+      .catch((err) => {
+        console.error('Error fetching user:', err);
+        navigate('/');
+      });
+  }, [navigate]);
 
   const showNavbarRoutes = [
     '/home',

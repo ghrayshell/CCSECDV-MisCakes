@@ -46,6 +46,7 @@ app.get('/deleteAllProducts', productController.deleteAllProducts);
 app.get('/getAllUsers', userController.getAllUsers);
 app.put("/users/:id/role", userController.updateRole);
 
+app.get('/logout', loginController.logoutUser);
 
 
 module.exports = app;

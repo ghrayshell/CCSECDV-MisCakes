@@ -40,11 +40,11 @@ app.use(express.urlencoded({extended: true}));
 app.use(express.static('public'));
 app.use('/', routes);
 
-app.use((req, res, next) => {
-    console.log('Current Session:', req.session);
-    console.log('Passport Data:', req.session.passport);
-    next();
-  });
+// app.use((req, res, next) => {
+//     console.log('Current Session:', req.session);
+//     console.log('Passport Data:', req.session.passport);
+//     next();
+//   });
 
 app.use(function (req, res) {
     res.render('error');

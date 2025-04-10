@@ -29,16 +29,17 @@ const loginController = {
         res.status(500).send('Server error');
       }
     }, 
-    currentUser: function (req, res) {
+    currentUser: async function (req, res) {
         console.log('Session ID:', req.session.user);
-        // console.log('Session data from MongoDB:', req.session);
+        const currentUser = (await User.findById(req.session.user).select('name'))?.name;
+        console.log('Session data from MongoDB:', req.session);
 
         if (req.session.user) {
-            res.status(200).send({ redirectTo: '/home' });
+            res.status(200).send({ redirectTo: '/home', currentUser: currentUser});
             // res.redirect('/home');
-          } else {
+        } else {
             res.status(401).send('Unauthorized');
-          }
+        }
 
         // if (req.session.userId) {
         //     // If the session contains a user ID, find the user from the database
@@ -54,6 +55,19 @@ const loginController = {
         //     return res.status(401).json({ authenticated: false });
         // }
     },
+    logoutUser: async function(req, res){
+      req.session.destroy((err) => {
+        if (err) {
+          return res.status(500).json({ message: 'Failed to log out' });
+        }
+    
+        // Clear the session cookie
+        res.clearCookie('connect.sid'); // 'connect.sid' is the default cookie name for sessions in Express
+    
+        // Respond with a success message
+        res.status(200).json({ message: 'Logged out successfully' });
+      });
+    }
   };
   
   module.exports = loginController;
