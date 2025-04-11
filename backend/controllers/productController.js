@@ -4,11 +4,9 @@ const User = require('../models/UserModel.js');
 
 const productController = {
     createProduct: async function(req, res){
-        console.log("CREATED NEW");
         const productDesc = req.body;
         const newData = new Product(productDesc);
-        const user = await User.findById(req.session.user);
-        const email = user?.email || "unknown";
+        const email = await User.findById(req.session.user).email;
         const ip = req.ip;
         const userAgent = req.headers['user-agent'];
 
@@ -37,8 +35,7 @@ const productController = {
 
     getProduct: async function(req, res){
         const query = req.params.productId;
-        const user = await User.findById(req.session.user);
-        const email = user?.email || "unknown";
+        const email = await User.findById(req.session.user).email;
         const ip = req.ip;
         const userAgent = req.headers['user-agent'];
 
@@ -79,8 +76,7 @@ const productController = {
     },
 
     getAllProducts: async function(req, res){
-        const user = await User.findById(req.session.user);
-        const email = user?.email || "unknown";
+        const email = await User.findById(req.session.user).email;
         const ip = req.ip;
         const userAgent = req.headers['user-agent'];
         try{
@@ -107,31 +103,17 @@ const productController = {
             return res.status(500).send(err);
         }
     },
-  
-    updateProduct: async function(req, res) {
-        console.log("HEY");
-        const id = req.params.productId;  // This is the correct MongoDB _id
-        const newData = req.body;
+
+    updateProduct: async function(req, res){
         const query = req.params.productId;
-        const user = await User.findById(req.session.user);
-        const email = user?.email || "unknown";
+        const newData = req.body;
+        const email = await User.findById(req.session.user).email;
         const ip = req.ip;
         const userAgent = req.headers['user-agent'];
-    
-        try {
-            const updatedProduct = await Product.findByIdAndUpdate(id, newData, {
-                new: true,
-                runValidators: true,
-            });
-    
-            if (!updatedProduct) {
-                return res.status(404).json({ error: '404', message: 'Product not found.' });
-            }
-    
-            res.json(updatedProduct);
-        } catch (err) {
-            console.error('Update failed:', err);
-            return res.status(500).json({ error: '500', message: err.message });
+
+        try{
+            const updatedProduct = await Product.updateOne({productId: query}, newData);
+
             if(!updatedProduct){
                 await Log.create({
                     email,
@@ -162,20 +144,16 @@ const productController = {
             return res.status(500).json({error: '500', message: err});
         }
     },
-   
-    deleteProduct: async function(req, res) {
-        const id = req.params.productId;
+
+    deleteProduct: async function(req, res){
         const query = req.params.productId;
-        const user = await User.findById(req.session.user);
-        const email = user?.email || "unknown";
+        const email = await User.findById(req.session.user).email;
         const ip = req.ip;
         const userAgent = req.headers['user-agent'];
-    
-        try {
-            const deletedProduct = await Product.findByIdAndDelete(id);
-    
-            if (!deletedProduct) {
-                return res.status(404).json({ error: '404', message: 'Product not found.' });
+        
+        try{
+            const productToDelete = await Product.deleteOne({productId: query});
+
             if(!productToDelete){
                 await Log.create({
                     email,
@@ -195,17 +173,13 @@ const productController = {
                 });
                 res.json(productToDelete);
             }
-    
-            res.json({ message: 'Product deleted successfully.' });
-        } catch (err) {
-            console.error('Delete error:', err);
-            return res.status(500).json({ error: '500', message: err.message });
+        } catch(err){
+            return res.status(500).send(err);
         }
     },
 
     deleteAllProducts: async function(req, res){
-        const user = await User.findById(req.session.user);
-        const email = user?.email || "unknown";
+        const email = await User.findById(req.session.user).email;
         const ip = req.ip;
         const userAgent = req.headers['user-agent'];
         try{
