@@ -24,6 +24,8 @@ import seemore_partition from '../../assets/see_more_partition_header.svg';
 import seemoreimg1 from '../../assets/seemore-imgs/seemoreimg1.png';
 import seemoreimg2 from '../../assets/seemore-imgs/seemoreimg2.png';
 
+import { useEffect } from 'react';
+
 const ViewProdBtn = ({ to, children, handleClick }) => {
     return (
         <Link to={to}>
@@ -42,6 +44,18 @@ ViewProdBtn.propTypes = {
 
 const Home = () => {
     const [isHovered, setIsHovered] = useState(false);
+    const [lastUseMsg, setLastUseMsg] = useState('');
+    const [showLastUse, setShowLastUse] = useState(true);
+    const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+
+    useEffect(() => {
+        const last = localStorage.getItem("lastLoginAttempt");
+        if (last) {
+        const formatted = new Date(last).toLocaleString();
+        setLastUseMsg(`Last account access attempt before this session was on ${formatted}.`);
+        localStorage.removeItem("lastLoginAttempt"); // clear after showing
+        }
+    }, []);
 
     const handleMouseEnter = () => {
         setIsHovered(true);
@@ -53,6 +67,58 @@ const Home = () => {
 
     return (
         <main>
+            {lastUseMsg && showLastUse && (
+                <div className="relative bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded mb-4 text-sm max-w-md mx-auto mt-4 text-center shadow transition-all duration-500 ease-in-out transform">
+                    {lastUseMsg}
+
+                    <button
+                    className="absolute top-1 right-2 text-xl text-yellow-800 hover:text-red-600 focus:outline-none"
+                    onClick={() => setShowLastUse(false)}
+                    aria-label="Close"
+                    >
+                    &times;
+                    </button>
+
+                    {/* Change password button */}
+                    <button
+                    className="mt-2 ml-2 text-sm text-orange-600 font-semibold underline hover:text-orange-800"
+                    onClick={() => setShowChangePasswordModal(true)}>
+                    Change password here
+                    </button>
+                </div>
+            )}
+
+            {showChangePasswordModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm relative">
+                    <button
+                        className="absolute top-2 right-3 text-gray-600 hover:text-red-500 text-xl"
+                        onClick={() => setShowChangePasswordModal(false)}
+                    >
+                        &times;
+                    </button>
+                    <h2 className="text-lg font-bold mb-4 text-gray-800">Change Password</h2>
+                    {/* Put your actual change password form here */}
+                    <form>
+                        <input
+                        type="password"
+                        placeholder="New password"
+                        className="w-full p-2 mb-3 border border-gray-300 rounded"
+                        />
+                        <input
+                        type="password"
+                        placeholder="Confirm password"
+                        className="w-full p-2 mb-4 border border-gray-300 rounded"
+                        />
+                        <button className="bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded w-full">
+                        Update Password
+                        </button>
+                    </form>
+                    </div>
+                </div>
+            )}
+
+
             {/* <div className="image-carousel-container">
                 <ImageCarousel imageUrls={[img1, img2, img3, img4]} />
             </div> */}

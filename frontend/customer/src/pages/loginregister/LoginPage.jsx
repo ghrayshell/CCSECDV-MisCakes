@@ -41,6 +41,8 @@ const LoginSignUpPage = () => {
         if (res.data.redirectTo) {
           // Use React Router's navigate function to redirect without reloading the page
           // setIsAuthenticated(true); 
+           // store last attempt before redirecting
+          localStorage.setItem("lastLoginAttempt", res.data.lastAttempt);
           navigate(res.data.redirectTo);  // This will navigate to /home
         }
       } catch (error) {
