@@ -50,5 +50,7 @@ app.post('/check-email', loginController.checkEmail);
 app.get('/logout', loginController.logoutUser);
 
 app.get('/status', userController.getRole);
+app.get('/logs', userController.getLogs);
+app.delete('/logs', userController.deleteLogs);
 
 module.exports = app;
