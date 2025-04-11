@@ -22,6 +22,7 @@ const userController = {
                 password: hashedPassword,
                 passwordHistory:[hashedPassword],
                 passwordDate: new Date(),
+                lastAttempt: new Date(),
                 resetQuestion,
                 resetAnswer
             });
