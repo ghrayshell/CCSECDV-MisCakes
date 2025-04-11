@@ -43,6 +43,7 @@ const LoginSignUpPage = () => {
         if (res.data.redirectTo) {
           // Use React Router's navigate function to redirect without reloading the page
           // setIsAuthenticated(true); 
+
           setIsAuthenticated(true);
           fetch('http://localhost:4000/status', {
             method: 'GET',
@@ -62,10 +63,14 @@ const LoginSignUpPage = () => {
               console.log('Authorization Failed: ', err);
             })
           
+           // store last attempt before redirecting
+          localStorage.setItem("lastLoginAttempt", res.data.lastAttempt);
+          navigate(res.data.redirectTo);  // This will navigate to /home
         }
-      } catch(error){
-        console.log(error); 
-        setError("Invalid username and/or password!");
+      } catch (error) {
+        const message = error.response?.data || "Something went wrong";
+        console.log("Login error:", message);
+        setError(typeof message === 'string' ? message : message.message);
       }
     }
 
