@@ -53,6 +53,9 @@ const ChangePasswordPopup = ({
   const [resetAnswerInput, setResetAnswerInput] = useState('');
   const [isReusedPassword, setIsReusedPassword] = useState(false);
   const [message, setMessage] = useState('');
+  const [tooSoonToChange, setTooSoonToChange] = useState(false);
+  const [timeLeftMessage, setTimeLeftMessage] = useState('');
+
   const [passwordValidations, setPasswordValidations] = useState({
     length: false,
     uppercase: false,
@@ -61,11 +64,32 @@ const ChangePasswordPopup = ({
   });
 
   const passwordsDoNotMatch = newPassword && confirmPassword && newPassword !== confirmPassword;
-
   const isFormValid =
     (newPassword === confirmPassword) &&
     !isReusedPassword &&
     (resetAnswerInput.trim().toLowerCase() === correctResetAnswer.trim().toLowerCase());
+
+    useEffect(() => {
+      if (passwordDate) {
+        const lastChanged = new Date(passwordDate);
+        const now = new Date();
+        const diffInMs = now - lastChanged;
+        const oneDayInMs = 24 * 60 * 60 * 1000;
+    
+        if (diffInMs < oneDayInMs) {
+          setTooSoonToChange(true);
+    
+          const msLeft = oneDayInMs - diffInMs;
+          const hours = Math.floor(msLeft / (60 * 60 * 1000));
+          const minutes = Math.floor((msLeft % (60 * 60 * 1000)) / (60 * 1000));
+    
+          setTimeLeftMessage(`Please wait ${hours} hour(s) and ${minutes} minute(s) to be able to change your password.`);
+        } else {
+          setTooSoonToChange(false);
+          setTimeLeftMessage('');
+        }
+      }
+    }, [passwordDate]);    
 
     useEffect(() => {
       const checkReusedPassword = async () => {
@@ -127,11 +151,12 @@ const ChangePasswordPopup = ({
     
       console.log('Password change response:', res.data);
 
-      setMessage(res.data.message);
-    
+      setMessage("✅ Password updated successfully!");
+
       setTimeout(() => {
-        onClose(); // Close modal after success
-      }, 1500);
+        setMessage('');
+        onClose(); // Close modal after showing message
+      }, 2000);
     } catch (error) {
       setMessage(error.response?.data?.message || "Something went wrong.");
     }    
@@ -228,18 +253,26 @@ const ChangePasswordPopup = ({
         <div className="mt-6">
           <button 
             onClick={handleSubmit}
-            disabled={!isFormValid}
+            disabled={!isFormValid || tooSoonToChange}
             className={`text-white px-6 py-3 rounded-lg w-full flex items-center justify-center 
                 ${isFormValid? "bg-orange-600 hover:bg-orange-700 cursor-pointer" : "bg-gray-300 cursor-default"}
               `}> {'Update Password'}
             </button>
 
-          {/* <button onClick={handleSubmit} className="bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded w-full">
-            Update Password
-          </button> */}
-        </div>
+            {message && (
+              <div className="text-green-600 text-sm mt-3 text-center">
+                {message}
+              </div>
+            )}
 
-        
+            {tooSoonToChange && (
+              <div className="text-red-500 text-sm text-center mt-5">
+                ❌ Password must be at least one day old for this feature ❌
+                <br />
+                {timeLeftMessage}
+              </div>
+            )}
+        </div>
       </div>
     </div>
   );
