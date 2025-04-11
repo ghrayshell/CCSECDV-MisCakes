@@ -6,7 +6,7 @@ const contactController = require('../controllers/contactController.js');
 const productController = require('../controllers/productController.js');
 const registerController = require('../controllers/registerController.js');
 const loginController = require('../controllers/loginController.js');
-const ensureAuthenticated = require('../middleware/ensureAuthenticated.js');
+const {requireAuth, requireRole} = require('../middleware/auth.js');
 const userController = require('../controllers/registerController.js');
 
 const app = express();
@@ -21,7 +21,7 @@ app.get('/current_user', loginController.currentUser);
 // app.use((req, res, next) => {
 //     const publicPaths = ['/favicon.ico', '/', '/register', '/login', 'current_user']; // Add more public paths if needed
 //     if (publicPaths.includes(req.path)) return next();  // Skip auth for public routes
-//     ensureAuthenticated(req, res, next);  // Ensure auth for all other routes
+//     auth(req, res, next);  // Ensure auth for all other routes
 // });
 
 // Private
