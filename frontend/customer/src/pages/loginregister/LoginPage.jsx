@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, User, ArrowRight, Github, Twitter } from 'lucide-react'; 
 import { Link, useNavigate } from 'react-router-dom'; 
 import axios from 'axios';
+import { useAuth } from '../../context/AuthProvider'; // Import the AuthContext hook
 
 const formVariants = { 
   hidden: { opacity: 0, x: -30 }, 
@@ -29,6 +30,7 @@ const LoginSignUpPage = () => {
     const [name, setName] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const { setIsAuthenticated,  userRole} = useAuth();
 
     const toggleMode = () => setIsLogin(!isLogin);
 
@@ -41,10 +43,28 @@ const LoginSignUpPage = () => {
         if (res.data.redirectTo) {
           // Use React Router's navigate function to redirect without reloading the page
           // setIsAuthenticated(true); 
-          navigate(res.data.redirectTo);  // This will navigate to /home
+          setIsAuthenticated(true);
+          fetch('http://localhost:4000/status', {
+            method: 'GET',
+            credentials: 'include'
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              if(data.role){
+                if(data.role === 'admin'){
+                  navigate('/admin');
+                } else{
+                  navigate('/home');
+                }
+              }
+            })
+            .catch((err) => {
+              console.log('Authorization Failed: ', err);
+            })
+          
         }
       } catch(error){
-        console.log(error.response?.data?.message || "Something went wrong");
+        console.log(error); 
         setError("Invalid username and/or password!");
       }
     }
@@ -101,14 +121,12 @@ const LoginSignUpPage = () => {
                   </div>
 
                   <div className="mt-8 space-y-4">
-                    <Link to="/home">
-                      <button
-                        onClick={handleLogin}
-                        className={`text-white px-6 py-3 rounded-lg w-full flex items-center justify-center hover:bg-orange-700 hover:cursor-pointer ${isLogin ? 'bg-orange-600' : 'bg-green-600'}`}
-                      >
-                        {isLogin ? 'Sign In' : 'Sign Up'} <ArrowRight className="ml-2" size={20} />
-                      </button>
-                    </Link>
+                  <button
+                    onClick={handleLogin} // Handle login click
+                    className={`text-white px-6 py-3 rounded-lg w-full flex items-center justify-center hover:bg-orange-700 hover:cursor-pointer ${isLogin ? 'bg-orange-600' : 'bg-green-600'}`}
+                  >
+                    {isLogin ? 'Sign In' : 'Sign Up'} <ArrowRight className="ml-2" size={20} />
+                  </button> 
                     <div className="text-center">Don't have an account yet? <Link to="/signup" className="text-orange-600 font-bold">Sign up</Link></div>
                   </div>
 

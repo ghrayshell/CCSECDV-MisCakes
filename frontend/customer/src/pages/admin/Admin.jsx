@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom"; // Add useNavigate for routing
 import AssignRolesPage from '../../components/assignRoles/AssignRoles.jsx';
+import { useAuth } from "../../context/AuthProvider.jsx"; 
 
 const navItems = [
   { name: "View Dashboard", icon: Home },
@@ -23,6 +24,7 @@ const AssignRoles = () => <div className="p-4"><AssignRolesPage></AssignRolesPag
 
 export default function AdminDashboard() {
   const [active, setActive] = useState("View Dashboard");
+  const { setIsAuthenticated } = useAuth();
   const navigate = useNavigate(); // Hook to navigate
 
   const renderContent = () => {
@@ -40,9 +42,22 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleLogout = () => {
-    // Handle any logout functionality like clearing session or token here
-    navigate("/"); // Redirect to homepage
+  const handleLogout = async () => {
+    try {
+      const res = await fetch('http://localhost:4000/logout', { 
+        method: 'GET', 
+        credentials: 'include' // to send the session cookie
+      });
+  
+      if (res.ok) {
+        // Redirect to home or login page after logging out
+        navigate('/'); // Or use React Router's navigate() if needed
+      } else {
+        console.error('Logout failed');
+      }
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
   };
 
   return (
