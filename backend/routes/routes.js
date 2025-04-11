@@ -50,5 +50,10 @@ app.post('/check-email', loginController.checkEmail);
 app.get('/logout', loginController.logoutUser);
 
 app.get('/status', userController.getRole);
+app.get('/getResetQuestion', loginController.getResetQuestion);
+app.post('/change-password', loginController.changePassword);
+
+module.exports = app;
+
 
 module.exports = app;
