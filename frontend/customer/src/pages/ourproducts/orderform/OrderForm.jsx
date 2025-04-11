@@ -55,9 +55,29 @@ function OrderForm(){
         setInputs({...inputs, [deliveryDate]: date});
     }
 
+    const isValidEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+    
+    const isValidContact = (contact) => {
+        const contactRegex = /^9\d{9}$/;
+        return contactRegex.test(contact);
+    };
+
     const handleSubmit = (event) => {
         event.preventDefault();
         console.log(inputs);
+    
+        if (!isValidContact(inputs.conum)) {
+            alert("Please enter the right contact number e.g. 9xxxxxxxxx");
+            return;
+        }
+
+        if (!isValidEmail(inputs.email)) {
+            alert("Please enter a valid email address.");
+            return;
+        }
 
         const orderForm = {
             orderedProduct: product.name,
