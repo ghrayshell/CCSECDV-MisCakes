@@ -97,7 +97,8 @@ function OrderForm(){
                 console.error('Error: ', error);
             });
 
-        // navigate('/');
+            alert("Successfully Ordered a Cake!");
+            navigate('/home');
     }
 
     useEffect(() => {

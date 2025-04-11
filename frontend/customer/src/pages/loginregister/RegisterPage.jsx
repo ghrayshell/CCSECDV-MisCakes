@@ -90,7 +90,7 @@ const RegisterPage = () => {
       }
   
       try {
-        const res = await axios.post("http://localhost:4000/check-email", { email });
+        const res = await axios.post("http://localhost:4000/check-email", { email }, {withCredentials: true});
         console.log("EMAIL CHECK RESPONSE:", res.data); // 👉 add this!
         setEmailExists(res.data.exists);
       } catch (error) {

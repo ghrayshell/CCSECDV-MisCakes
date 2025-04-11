@@ -9,17 +9,17 @@ import {
 import { useNavigate } from "react-router-dom"; // Add useNavigate for routing
 import AssignRolesPage from '../../components/assignRoles/AssignRoles.jsx';
 import { useAuth } from "../../context/AuthProvider.jsx"; 
+import AllLogs from './AllLogs.jsx';
 
 const navItems = [
   { name: "View Dashboard", icon: Home },
   { name: "Manage Users", icon: Users },
-  { name: "View All Orders", icon: ClipboardList },
+  { name: "View All Logs", icon: ClipboardList },
   { name: "Assign Roles", icon: ShieldCheck },
 ];
 
 const Dashboard = () => <div className="p-4">📊 Orders, Users, Activity</div>;
 const ManageUsers = () => <div className="p-4">👥 List, Suspend/Delete Users</div>;
-const AllOrders = () => <div className="p-4">📦 All Customer Orders</div>;
 const AssignRoles = () => <div className="p-4"><AssignRolesPage></AssignRolesPage></div>;
 
 export default function AdminDashboard() {
@@ -33,8 +33,8 @@ export default function AdminDashboard() {
         return <Dashboard />;
       case "Manage Users":
         return <ManageUsers />;
-      case "View All Orders":
-        return <AllOrders />;
+      case "View All Logs":
+        return <AllLogs />;
       case "Assign Roles":
         return <AssignRoles />;
       default:
