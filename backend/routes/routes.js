@@ -39,8 +39,8 @@ app.get('/getAllContacts', contactController.getAllContacts);
 app.post('/createProduct', productController.createProduct);
 app.get('/getProduct/:productId', productController.getProduct);
 app.get('/getAllProducts', productController.getAllProducts);
-app.post('/updateProduct/:productId', productController.updateProduct);
-app.get('/deleteProduct/:productId', productController.deleteProduct);
+app.put('/updateProduct/:productId', productController.updateProduct);
+app.delete('/deleteProduct/:productId', productController.deleteProduct);
 app.get('/deleteAllProducts', productController.deleteAllProducts);
 
 app.get('/getAllUsers', userController.getAllUsers);

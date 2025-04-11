@@ -2,6 +2,7 @@ const Product = require('../models/ProductModel.js');
 
 const productController = {
     createProduct: async function(req, res){
+        console.log("CREATED NEW");
         const productDesc = req.body;
         const newData = new Product(productDesc);
 
@@ -41,36 +42,76 @@ const productController = {
         }
     },
 
-    updateProduct: async function(req, res){
-        const query = req.params.productId;
+    // updateProduct: async function(req, res){
+    //     const query = req.params.productId;
+    //     const newData = req.body;
+
+    //     try{
+    //         const updatedProduct = await Product.updateOne({productId: query}, newData);
+
+    //         if(!updatedProduct){
+    //             res.status(404).json({error: '404', message: 'Product not Found.'});
+    //         } else{
+    //             res.json(updatedProduct);
+    //         }
+    //     } catch(err){
+    //         return res.status(500).json({error: '500', message: err});
+    //     }
+    // },
+
+    updateProduct: async function(req, res) {
+        console.log("HEY");
+        const id = req.params.productId;  // This is the correct MongoDB _id
         const newData = req.body;
-
-        try{
-            const updatedProduct = await Product.updateOne({productId: query}, newData);
-
-            if(!updatedProduct){
-                res.status(404).json({error: '404', message: 'Product not Found.'});
-            } else{
-                res.json(updatedProduct);
+    
+        try {
+            const updatedProduct = await Product.findByIdAndUpdate(id, newData, {
+                new: true,
+                runValidators: true,
+            });
+    
+            if (!updatedProduct) {
+                return res.status(404).json({ error: '404', message: 'Product not found.' });
             }
-        } catch(err){
-            return res.status(500).json({error: '500', message: err});
+    
+            res.json(updatedProduct);
+        } catch (err) {
+            console.error('Update failed:', err);
+            return res.status(500).json({ error: '500', message: err.message });
         }
     },
+    
 
-    deleteProduct: async function(req, res){
-        const query = req.params.productId;
+    // deleteProduct: async function(req, res){
+    //     const query = req.params.productId;
         
-        try{
-            const productToDelete = await Product.deleteOne({productId: query});
+    //     try{
+    //         const productToDelete = await Product.deleteOne({productId: query});
 
-            if(!productToDelete){
-                res.status(404).json({error: '404', message: 'Product not Found.'});
-            } else{
-                res.json(productToDelete);
+    //         if(!productToDelete){
+    //             res.status(404).json({error: '404', message: 'Product not Found.'});
+    //         } else{
+    //             res.json(productToDelete);
+    //         }
+    //     } catch(err){
+    //         return res.status(500).send(err);
+    //     }
+    // },
+
+    deleteProduct: async function(req, res) {
+        const id = req.params.productId;
+    
+        try {
+            const deletedProduct = await Product.findByIdAndDelete(id);
+    
+            if (!deletedProduct) {
+                return res.status(404).json({ error: '404', message: 'Product not found.' });
             }
-        } catch(err){
-            return res.status(500).send(err);
+    
+            res.json({ message: 'Product deleted successfully.' });
+        } catch (err) {
+            console.error('Delete error:', err);
+            return res.status(500).json({ error: '500', message: err.message });
         }
     },
 
