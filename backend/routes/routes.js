@@ -25,7 +25,7 @@ app.get('/current_user', loginController.currentUser);
 // });
 
 // Private
-app.post('/postOrder', orderController.createOrder);
+app.post('/postOrder', requireAuth, orderController.createOrder);
 app.post('/updateOrder/:orderId', orderController.updateOrder);
 app.get('/deleteOrder/:orderId', orderController.deleteOrder);
 app.get('/getAllOrders', orderController.getAllOrders);
@@ -44,7 +44,7 @@ app.get('/deleteProduct/:productId', productController.deleteProduct);
 app.get('/deleteAllProducts', productController.deleteAllProducts);
 
 app.get('/getAllUsers', userController.getAllUsers);
-app.put("/users/:id/role", userController.updateRole);
+app.put("/users/:id/role", requireAuth, requireRole('admin'), userController.updateRole);
 
 app.post('/check-email', loginController.checkEmail);
 app.get('/logout', loginController.logoutUser);
