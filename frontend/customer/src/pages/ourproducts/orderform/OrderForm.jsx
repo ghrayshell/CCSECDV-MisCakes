@@ -77,8 +77,9 @@ function OrderForm(){
             additional: inputs.additional
         }
 
-        fetch("https://miscake-api.vercel.app/postOrder", {
+        fetch("http://localhost:4000/postOrder", {
             method: 'POST',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -105,7 +106,7 @@ function OrderForm(){
     }, []);
 
     useEffect(() => {
-        fetch(`https://miscake-api.vercel.app/getProduct/${productID}`)
+        fetch(`http://localhost:4000/getProduct/${productID}`)
             .then(res => {
                 if(!res.ok){
                     throw new Error('Error Getting Product.');

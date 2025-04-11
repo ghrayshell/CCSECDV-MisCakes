@@ -149,7 +149,7 @@ function App() {
             />
             
 
-            <Route path="/order/:id" element={<ProtectedRoute element={<OrderForm />} requiredRole="customer" />} />
+            {/* <Route path="/order/:id" element={<ProtectedRoute element={<OrderForm />} requiredRole="customer" />} /> */}
             <Route
               path="/order/:id"
               element={<ProtectedRoute requiredRole="customer"><OrderForm /></ProtectedRoute>}

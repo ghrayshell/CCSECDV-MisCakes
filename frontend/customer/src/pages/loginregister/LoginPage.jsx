@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; 
+import React, { useState, useEffect } from 'react'; 
 import { motion, AnimatePresence } from 'framer-motion'; 
 import { Mail, Lock, User, ArrowRight, Github, Twitter } from 'lucide-react'; 
 import { Link, useNavigate } from 'react-router-dom'; 
@@ -33,6 +33,32 @@ const LoginSignUpPage = () => {
     const { setIsAuthenticated,  userRole} = useAuth();
 
     const toggleMode = () => setIsLogin(!isLogin);
+
+    useEffect(() => {
+      const checkSession = async () => {
+        try {
+          const res = await fetch('http://localhost:4000/status', {
+            method: 'GET',
+            credentials: 'include',
+          });
+          const data = await res.json();
+    
+          if (data.role) {
+            setIsAuthenticated(true); // Set context state
+            // Redirect based on role
+            if (data.role === 'admin') {
+              navigate('/admin');
+            } else {
+              navigate('/home');
+            }
+          }
+        } catch (err) {
+          console.log("No active session found.");
+        }
+      };
+    
+      checkSession();
+    }, []);
 
     const handleLogin = async (e) => {
       e.preventDefault();

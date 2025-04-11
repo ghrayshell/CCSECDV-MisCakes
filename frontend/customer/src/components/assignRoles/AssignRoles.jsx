@@ -18,7 +18,7 @@ const AssignRoles = () => {
   // Update the user's role
   const handleRoleChange = () => {
     console.log('ROLE: ', newRole);
-    axios.put(`http://localhost:4000/users/${selectedUserId}/role`, { role: newRole })
+    axios.put(`http://localhost:4000/users/${selectedUserId}/role`, { role: newRole } , { withCredentials: true })
       .then(response => {
         alert("Role updated successfully!");
       })
@@ -34,7 +34,7 @@ const AssignRoles = () => {
       <select onChange={(e) => setSelectedUserId(e.target.value)}>
         <option value="">Select User</option>
         {users.map(user => (
-          <option key={user._id} value={user._id}>{user.name}</option>
+          <option key={user._id} value={user._id}>{user.email}</option>
         ))}
       </select>
 
