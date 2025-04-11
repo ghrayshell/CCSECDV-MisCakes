@@ -25,30 +25,32 @@ app.get('/current_user', loginController.currentUser);
 // });
 
 // Private
-app.post('/postOrder', requireAuth, orderController.createOrder);
-app.post('/updateOrder/:orderId', orderController.updateOrder);
-app.get('/deleteOrder/:orderId', orderController.deleteOrder);
-app.get('/getAllOrders', orderController.getAllOrders);
+app.post('/postOrder', requireAuth, requireRole('customer'), orderController.createOrder);
+app.post('/updateOrder/:orderId', requireAuth, orderController.updateOrder);
+app.get('/deleteOrder/:orderId', requireAuth, orderController.deleteOrder);
+app.get('/getAllOrders', requireAuth, orderController.getAllOrders);
 
-app.post('/createContact', contactController.createContact);
-app.post('/updateContact', contactController.updateContact);
-app.get('/deleteContact', contactController.deleteContact);
-app.get('/getContact', contactController.getContact);
-app.get('/getAllContacts', contactController.getAllContacts);
+app.post('/createContact', requireAuth, contactController.createContact);
+app.post('/updateContact', requireAuth, contactController.updateContact);
+app.get('/deleteContact', requireAuth, contactController.deleteContact);
+app.get('/getContact', requireAuth, contactController.getContact);
+app.get('/getAllContacts', requireAuth, contactController.getAllContacts);
 
-app.post('/createProduct', productController.createProduct);
-app.get('/getProduct/:productId', productController.getProduct);
-app.get('/getAllProducts', productController.getAllProducts);
-app.post('/updateProduct/:productId', productController.updateProduct);
-app.get('/deleteProduct/:productId', productController.deleteProduct);
-app.get('/deleteAllProducts', productController.deleteAllProducts);
+app.post('/createProduct', requireAuth, productController.createProduct);
+app.get('/getProduct/:productId', requireAuth, productController.getProduct);
+app.get('/getAllProducts', requireAuth, productController.getAllProducts);
+app.put('/updateProduct/:productId', requireAuth, requireRole('product_manager'), productController.updateProduct);
+app.delete('/deleteProduct/:productId', requireAuth, requireRole('product_manager'), productController.deleteProduct);
+app.get('/deleteAllProducts', requireAuth, requireRole('product_manager'), productController.deleteAllProducts);
 
-app.get('/getAllUsers', userController.getAllUsers);
+app.get('/getAllUsers', requireAuth, userController.getAllUsers);
 app.put("/users/:id/role", requireAuth, requireRole('admin'), userController.updateRole);
 
-app.post('/check-email', loginController.checkEmail);
+app.post('/check-email', requireAuth, loginController.checkEmail);
 app.get('/logout', loginController.logoutUser);
 
-app.get('/status', userController.getRole);
+app.get('/status', requireAuth, userController.getRole);
+app.get('/logs', requireAuth, requireRole('admin'), userController.getLogs);
+app.delete('/logs', requireAuth, requireRole('admin'), userController.deleteLogs);
 
 module.exports = app;

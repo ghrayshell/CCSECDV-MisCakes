@@ -18,7 +18,10 @@ const OurProducts = () => {
 
     useEffect(() => {
         const fetchProducts = () => {
-            fetch(`http://localhost:4000/getAllProducts`)
+            fetch(`http://localhost:4000/getAllProducts`, {
+                method: 'GET',
+                credentials: 'include'
+            })
                 .then(response => {
                     if(!response.ok) {
                         throw new Error('Failed to get all products.');

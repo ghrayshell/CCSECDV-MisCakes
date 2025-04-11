@@ -1,17 +1,26 @@
-const passport = require('passport');
 const User = require('../models/UserModel.js');
 const bcrypt = require('bcryptjs');
+const Log = require('../models/LogModel.js')
 
 const loginController = {
     loginUser: async function (req, res, next) {
       // Passport will handle the login and session management
       console.log('Trying to authenticate:', req.body);
       const { email, password } = req.body;
+      const ip = req.ip;
+      const userAgent = req.headers['user-agent'];
     
       try {
         // Find the user in the database by email
         const user = await User.findOne({ email });
         if (!user) {
+          await Log.create({
+            email,
+            status: 'failure',
+            message: 'Invalid email or password',
+            ip,
+            userAgent
+          });
           return res.status(401).send('Invalid email or password');
         }
 
@@ -40,6 +49,14 @@ const loginController = {
             $inc: { invalidAttempts: 1 },
             $set: { lastAttempt: new Date() }
           });
+
+          await Log.create({
+            email,
+            status: 'failure',
+            message: 'Invalid email or password',
+            ip,
+            userAgent
+          });
           
           return res.status(401).send('Invalid email or password');
         }
@@ -49,6 +66,13 @@ const loginController = {
         await user.save();
     
         // Store the user info in the session after successful login
+        await Log.create({
+          email,
+          status: 'success',
+          message: 'Successful Login',
+          ip,
+          userAgent
+        });
         req.session.user = user._id;
         return res.status(200).send({
           redirectTo: '/home',
@@ -64,11 +88,22 @@ const loginController = {
         console.log('Session ID:', req.session.user);
         const currentUser = (await User.findById(req.session.user).select('name'))?.name;
         console.log('Session data from MongoDB:', req.session);
+        const user = await User.findById(req.session.user);
+        const email = user?.email || "unknown";
+        const ip = req.ip;
+        const userAgent = req.headers['user-agent'];
 
         if (req.session.user) {
             res.status(200).send({ redirectTo: '/home', currentUser: currentUser});
             // res.redirect('/home');
         } else {
+            await Log.create({
+              email,
+              status: 'failure',
+              message: 'User is not Auntheticated',
+              ip,
+              userAgent
+            });
             res.status(401).send('Unauthorized');
         }
 
@@ -89,6 +124,10 @@ const loginController = {
     logoutUser: async function(req, res){
       try {
         const userId = req.session.user;
+        const user = await User.findById(req.session.user);
+        const email = user?.email || "unknown";
+        const ip = req.ip;
+        const userAgent = req.headers['user-agent'];
   
         if (userId) {
           // Update lastAttempt during logout
@@ -97,7 +136,7 @@ const loginController = {
           });
         }
         
-        req.session.destroy((err) => {
+        req.session.destroy(async (err) => {
           if (err) {
             return res.status(500).json({ message: 'Failed to log out' });
           }
@@ -106,9 +145,24 @@ const loginController = {
           res.clearCookie('connect.sid'); // 'connect.sid' is the default cookie name for sessions in Express
       
           // Respond with a success message
+          await Log.create({
+            email,
+            status: 'success',
+            message: 'Logged out successfully',
+            ip,
+            userAgent
+          });
+
           res.status(200).json({ message: 'Logged out successfully' });
         });
       } catch (err) {
+        await Log.create({
+          email,
+          status: 'success',
+          message: 'Server error during logout',
+          ip,
+          userAgent
+        });
         console.error('Logout error:', err);
         res.status(500).json({ message: 'Server error during logout' });
       }

@@ -10,6 +10,7 @@ import OurProducts from './pages/ourproducts/OurProducts';
 import ContactUs from './pages/contactus/ContactUs';
 import ProductDetails from './pages/productdetails/ProductDetails';
 import OrderForm from './pages/ourproducts/orderform/OrderForm';
+import ProductManager from './pages/product/ProductManager';
 
 // test components
 import CustomerInfo from './pages/ourproducts/orderform/components/CustomerInfo';
@@ -29,6 +30,7 @@ import { AuthProvider } from './context/AuthProvider';
 import Navbar from './components/navbar/Navbar';
 import Footer from './components/footer/Footer';
 import IsNavBar from './components/navbar/IsNavBar';
+//import ProductManager from './pages/product/prodmanager';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -149,7 +151,7 @@ function App() {
             />
             
 
-            {/* <Route path="/order/:id" element={<ProtectedRoute element={<OrderForm />} requiredRole="customer" />} /> */}
+            <Route path="/order/:id" element={<ProtectedRoute element={<OrderForm />} requiredRole="customer" />} />
             <Route
               path="/order/:id"
               element={<ProtectedRoute requiredRole="customer"><OrderForm /></ProtectedRoute>}
@@ -159,6 +161,11 @@ function App() {
             <Route
               path="/admin"
               element={<ProtectedRoute requiredRole="admin"><Admin /></ProtectedRoute>}
+            />
+
+            <Route
+              path="/prodmanager"
+              element={<ProtectedRoute requiredRole="product_manager"><ProductManager /></ProtectedRoute>}
             />
 
             <Route path="/unauthorized" element={<UnauthorizedPage />} />
