@@ -54,7 +54,9 @@ const LoginSignUpPage = () => {
               if(data.role){
                 if(data.role === 'admin'){
                   navigate('/admin');
-                } else{
+                } else if(data.role === 'product_manager'){
+                  navigate('/prodmanager');
+                } else {
                   navigate('/home');
                 }
               }

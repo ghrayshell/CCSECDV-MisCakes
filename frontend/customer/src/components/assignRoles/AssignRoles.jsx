@@ -8,7 +8,7 @@ const AssignRoles = () => {
 
   // Fetch users from the backend
   useEffect(() => {
-    axios.get("http://localhost:4000/getAllUsers")
+    axios.get("http://localhost:4000/getAllUsers", {withCredentials: true})
       .then(response => {
         setUsers(response.data);
       })
@@ -18,7 +18,7 @@ const AssignRoles = () => {
   // Update the user's role
   const handleRoleChange = () => {
     console.log('ROLE: ', newRole);
-    axios.put(`http://localhost:4000/users/${selectedUserId}/role`, { role: newRole })
+    axios.put(`http://localhost:4000/users/${selectedUserId}/role`, { role: newRole }, { withCredentials: true })
       .then(response => {
         alert("Role updated successfully!");
       })

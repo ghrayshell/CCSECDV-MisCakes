@@ -6,7 +6,8 @@ const productController = {
     createProduct: async function(req, res){
         const productDesc = req.body;
         const newData = new Product(productDesc);
-        const email = await User.findById(req.session.user).email;
+        const user = await User.findById(req.session.user);
+        const email = user?.email || "unknown";
         const ip = req.ip;
         const userAgent = req.headers['user-agent'];
 
@@ -35,7 +36,8 @@ const productController = {
 
     getProduct: async function(req, res){
         const query = req.params.productId;
-        const email = await User.findById(req.session.user).email;
+        const user = await User.findById(req.session.user);
+        const email = user?.email || "unknown";
         const ip = req.ip;
         const userAgent = req.headers['user-agent'];
 
@@ -76,21 +78,13 @@ const productController = {
     },
 
     getAllProducts: async function(req, res){
-        const email = await User.findById(req.session.user).email;
-        const ip = req.ip;
-        const userAgent = req.headers['user-agent'];
         try{
             const products = await Product.find();
-            if (!products || products.length === 0) {
-                await Log.create({
-                    email,
-                    status: 'failure',
-                    message: 'No orders found',
-                    ip,
-                    userAgent
-                });
-                return res.status(404).json({ message: 'No orders found' });
-              }
+            const user = await User.findById(req.session.user);
+            const email = user?.email || "unknown";
+            const ip = req.ip;
+            const userAgent = req.headers['user-agent'];
+            
             res.json(products);
         } catch(err){
             await Log.create({
@@ -104,17 +98,39 @@ const productController = {
         }
     },
 
-    updateProduct: async function(req, res){
-        const query = req.params.productId;
+    // updateProduct: async function(req, res){
+    //     const query = req.params.productId;
+    //     const newData = req.body;
+
+    //     try{
+    //         const updatedProduct = await Product.updateOne({productId: query}, newData);
+
+    //         if(!updatedProduct){
+    //             res.status(404).json({error: '404', message: 'Product not Found.'});
+    //         } else{
+    //             res.json(updatedProduct);
+    //         }
+    //     } catch(err){
+    //         return res.status(500).json({error: '500', message: err});
+    //     }
+    // },
+
+    updateProduct: async function(req, res) {
+        console.log("HEY");
+        const id = req.params.productId;  // This is the correct MongoDB _id
         const newData = req.body;
-        const email = await User.findById(req.session.user).email;
+        const user = await User.findById(req.session.user);
+        const email = user?.email || "unknown";
         const ip = req.ip;
         const userAgent = req.headers['user-agent'];
-
-        try{
-            const updatedProduct = await Product.updateOne({productId: query}, newData);
-
-            if(!updatedProduct){
+    
+        try {
+            const updatedProduct = await Product.findByIdAndUpdate(id, newData, {
+                new: true,
+                runValidators: true,
+            });
+    
+            if (!updatedProduct) {
                 await Log.create({
                     email,
                     status: 'failure',
@@ -122,18 +138,19 @@ const productController = {
                     ip,
                     userAgent
                 });
-                res.status(404).json({error: '404', message: 'Product not Found.'});
-            } else{
-                await Log.create({
-                    email,
-                    status: 'success',
-                    message: 'Updated one product',
-                    ip,
-                    userAgent
-                });
-                res.json(updatedProduct);
+                return res.status(404).json({ error: '404', message: 'Product not found.' });
             }
-        } catch(err){
+
+            await Log.create({
+                email,
+                status: 'success',
+                message: 'Updated one product',
+                ip,
+                userAgent
+            });
+    
+            res.json(updatedProduct);
+        } catch (err) {
             await Log.create({
                 email,
                 status: 'failure',
@@ -141,20 +158,38 @@ const productController = {
                 ip,
                 userAgent
             });
-            return res.status(500).json({error: '500', message: err});
+            return res.status(500).json({ error: '500', message: err.message });
         }
     },
+    
 
-    deleteProduct: async function(req, res){
-        const query = req.params.productId;
-        const email = await User.findById(req.session.user).email;
+    // deleteProduct: async function(req, res){
+    //     const query = req.params.productId;
+        
+    //     try{
+    //         const productToDelete = await Product.deleteOne({productId: query});
+
+    //         if(!productToDelete){
+    //             res.status(404).json({error: '404', message: 'Product not Found.'});
+    //         } else{
+    //             res.json(productToDelete);
+    //         }
+    //     } catch(err){
+    //         return res.status(500).send(err);
+    //     }
+    // },
+
+    deleteProduct: async function(req, res) {
+        const id = req.params.productId;
+        const user = await User.findById(req.session.user);
+        const email = user?.email || "unknown";
         const ip = req.ip;
         const userAgent = req.headers['user-agent'];
-        
-        try{
-            const productToDelete = await Product.deleteOne({productId: query});
-
-            if(!productToDelete){
+    
+        try {
+            const deletedProduct = await Product.findByIdAndDelete(id);
+    
+            if (!deletedProduct) {
                 await Log.create({
                     email,
                     status: 'failure',
@@ -162,28 +197,31 @@ const productController = {
                     ip,
                     userAgent
                 });
-                res.status(404).json({error: '404', message: 'Product not Found.'});
-            } else{
-                await Log.create({
-                    email,
-                    status: 'success',
-                    message: 'Successfully deleted a product',
-                    ip,
-                    userAgent
-                });
-                res.json(productToDelete);
+                return res.status(404).json({ error: '404', message: 'Product not found.' });
             }
-        } catch(err){
-            return res.status(500).send(err);
+            await Log.create({
+                email,
+                status: 'success',
+                message: 'Successfully deleted a product',
+                ip,
+                userAgent
+            });
+    
+            res.json({ message: 'Product deleted successfully.' });
+        } catch (err) {
+            console.error('Delete error:', err);
+            return res.status(500).json({ error: '500', message: err.message });
         }
     },
 
     deleteAllProducts: async function(req, res){
-        const email = await User.findById(req.session.user).email;
-        const ip = req.ip;
-        const userAgent = req.headers['user-agent'];
         try{
+            const user = await User.findById(req.session.user);
+            const email = user?.email || "unknown";
             const products = await Product.deleteMany();
+            const ip = req.ip;
+            const userAgent = req.headers['user-agent'];
+
             res.json(products);
         } catch(err){
             await Log.create({

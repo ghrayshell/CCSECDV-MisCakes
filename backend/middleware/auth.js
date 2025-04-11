@@ -11,7 +11,7 @@ async function requireAuth(req, res, next) {
     await Log.create({
       email,
       status: 'failure',
-      message: 'Unauthorized User',
+      message: 'User is not Aunthenticated',
       ip,
       userAgent
     });

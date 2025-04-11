@@ -163,7 +163,10 @@ function App() {
               element={<ProtectedRoute requiredRole="admin"><Admin /></ProtectedRoute>}
             />
 
-            <Route path="/prodmanager" element={<ProductManager />} />
+            <Route
+              path="/prodmanager"
+              element={<ProtectedRoute requiredRole="product_manager"><ProductManager /></ProtectedRoute>}
+            />
 
             <Route path="/unauthorized" element={<UnauthorizedPage />} />
             {/* Testing */}

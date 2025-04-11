@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const ProductManager = () => {
     const [products, setProducts] = useState([]);
@@ -10,13 +11,18 @@ const ProductManager = () => {
         description: ''
     });
 
+    const navigate = useNavigate();
+
     useEffect(() => {
         fetchProducts();
         window.scrollTo(0, 0);
     }, []);
 
     const fetchProducts = () => {
-        fetch('http://localhost:4000/GetAllProducts')
+        fetch('http://localhost:4000/GetAllProducts', {
+            method: 'GET',
+            credentials: 'include'
+        })
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to get all products.');
@@ -46,7 +52,8 @@ const ProductManager = () => {
             const res = await fetch(endpoint, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
+                credentials: 'include'
             });
     
             const result = await res.json();
@@ -77,13 +84,33 @@ const ProductManager = () => {
 
     };
 
+    const handleLogout = async () => {
+        try {
+            const res = await fetch('http://localhost:4000/logout', {
+                method: 'GET',
+                credentials: 'include',
+            });
+
+            if (res.ok) {
+                navigate('/'); // redirect to login page or home
+            } else {
+                const error = await res.json();
+                alert(error.message || 'Logout failed');
+            }
+        } catch (err) {
+            console.error('Logout error:', err);
+            alert('Error during logout');
+        }
+    };
+
     const handleDelete = async (id) => {
         const confirmDelete = window.confirm('Are you sure you want to delete this product?');
         if (!confirmDelete) return;
     
         try {
             const res = await fetch(`http://localhost:4000/deleteProduct/${id}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                credentials: 'include'
             });
     
             if (!res.ok) {
@@ -167,6 +194,21 @@ const deleteButton = {
             <h2 style={{ marginBottom: '20px' }}>
                 {form.productId ? 'Update Product' : 'Create Product'}
             </h2>
+
+            <button
+                onClick={handleLogout}
+                style={{
+                    padding: '8px 16px',
+                    backgroundColor: '#f44336',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold'
+                }}
+            >
+                Logout
+            </button>
 
             {/* Form as table */}
             <table style={tableStyle}>
