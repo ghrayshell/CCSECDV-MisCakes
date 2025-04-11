@@ -49,6 +49,9 @@ app.put("/users/:id/role", requireAuth, requireRole('admin'), userController.upd
 app.post('/check-email', requireAuth, loginController.checkEmail);
 app.get('/logout', loginController.logoutUser);
 
+app.get('/getResetQuestion', loginController.getResetQuestion);
+app.post('/change-password', loginController.changePassword);
+
 app.get('/status', requireAuth, userController.getRole);
 app.get('/logs', requireAuth, requireRole('admin'), userController.getLogs);
 app.delete('/logs', requireAuth, requireRole('admin'), userController.deleteLogs);

@@ -182,7 +182,73 @@ const loginController = {
         console.error('Error checking email:', error);
          res.status(500).json({ message: 'Internal server error' });
       }
-    }
+    },
+    getResetQuestion: async function (req, res) {
+      try {
+        const userId = req.session.user;
+        if (!userId) {
+          return res.status(401).json({ message: 'Unauthorized' });
+        }
+    
+        // Fetch resetQuestion, resetAnswer, passwordHistory, and passwordDate
+        const user = await User.findById(userId).select('resetQuestion resetAnswer passwordHistory passwordDate');
+    
+        console.log("User data:", user);
+
+        if (!user || !user.resetQuestion) {
+          return res.status(404).json({ message: 'No reset question found' });
+        }
+    
+        return res.status(200).json({
+          resetQuestion: user.resetQuestion,
+          resetAnswer: user.resetAnswer,
+          passwordHistory: user.passwordHistory || [],
+          passwordDate: user.passwordDate || null
+        });
+      } catch (error) {
+        console.error('Error fetching reset question and answer:', error);
+        res.status(500).json({ message: 'Internal server error' });
+      }
+    },     
+    changePassword: async function (req, res) {
+      try {
+        const userId = req.session.user;
+        const { newPassword, resetAnswer } = req.body;
+    
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ message: "User not found." });
+    
+        // Check reset answer
+        if (user.resetAnswer !== resetAnswer) {
+          return res.status(400).json({ message: "Incorrect answer to reset question." });
+        }
+    
+        // Prevent password reuse
+        for (const oldHashed of user.passwordHistory) {
+          const isSame = await bcrypt.compare(newPassword, oldHashed);
+          if (isSame) {
+            return res.status(400).json({ message: "You cannot reuse an old password." });
+          }
+        }
+    
+        const newHashedPassword = await bcrypt.hash(newPassword, 10);
+    
+        // Save current password to history
+        if (user.password) {
+          user.passwordHistory.unshift(user.password);
+          user.passwordHistory = user.passwordHistory.slice(0, 5);
+        }
+    
+        user.password = newHashedPassword;
+        await user.save();
+    
+        return res.status(200).json({ message: "Password updated successfully!" });
+    
+      } catch (err) {
+        console.error("Password change error:", err);
+        res.status(500).json({ message: "Server error" });
+      }
+    }        
   };
-  
+
   module.exports = loginController;

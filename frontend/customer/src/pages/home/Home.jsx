@@ -19,12 +19,14 @@ import windowframeimg1 from '../../assets/featuredproducts-imgs/windowframeimg1.
 import windowframeimg2 from '../../assets/featuredproducts-imgs/windowframeimg2.png';
 import windowframeimg3 from '../../assets/featuredproducts-imgs/windowframeimg3.png';
 import windowframeimg4 from '../../assets/featuredproducts-imgs/windowframeimg4.png';
+import ChangePasswordPopup from '../../components/ChangePasswordPopup/ChangePasswordPopup.jsx';
 
 import seemore_partition from '../../assets/see_more_partition_header.svg';
 import seemoreimg1 from '../../assets/seemore-imgs/seemoreimg1.png';
 import seemoreimg2 from '../../assets/seemore-imgs/seemoreimg2.png';
 
 import { useEffect } from 'react';
+import axios from 'axios';
 
 const ViewProdBtn = ({ to, children, handleClick }) => {
     return (
@@ -47,7 +49,36 @@ const Home = () => {
     const [lastUseMsg, setLastUseMsg] = useState('');
     const [showLastUse, setShowLastUse] = useState(true);
     const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+    const [resetQuestion, setResetQuestion] = useState('');
+    const [resetAnswer, setResetAnswer] = useState('');
+    const [passwordHistory, setPasswordHistory] = useState([]);
+    const [passwordDate, setPasswordDate] = useState(null);
 
+    useEffect(() => {
+        const fetchResetQuestion = async () => {
+            try {
+              const res = await axios.get('http://localhost:4000/getResetQuestion', {
+                withCredentials: true,
+              });
+          
+              console.log("✅ Fetched reset question response:", res.data);
+          
+              if (res.data?.resetQuestion) {
+                setResetQuestion(res.data.resetQuestion);
+                setResetAnswer(res.data.resetAnswer);
+                setPasswordHistory(res.data.passwordHistory || []);
+                setPasswordDate(res.data.passwordDate || null);
+              } else {
+                console.warn('⚠️ No reset question found.');
+              }
+            } catch (err) {
+              console.error('❌ Error fetching reset question:', err.message || err);
+            }
+          };          
+      
+        fetchResetQuestion();
+    }, []);
+      
     useEffect(() => {
         const last = localStorage.getItem("lastLoginAttempt");
         if (last) {
@@ -68,7 +99,7 @@ const Home = () => {
     return (
         <main>
             {lastUseMsg && showLastUse && (
-                <div className="relative bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded mb-4 text-sm max-w-md mx-auto mt-4 text-center shadow transition-all duration-500 ease-in-out transform">
+                <div className="relative bg-orange-100 border border-orange-400 text-orange-800 px-4 py-3 rounded mb-2 text-sm max-w-md mx-auto mt-13 text-center shadow transition-all duration-500 ease-in-out transform">
                     {lastUseMsg}
 
                     <button
@@ -81,7 +112,7 @@ const Home = () => {
 
                     {/* Change password button */}
                     <button
-                    className="mt-2 ml-2 text-sm text-orange-600 font-semibold underline hover:text-orange-800"
+                    className="mt-2 ml-2 text-sm text-orange-600 font-semibold underline hover:text-orange-800 cursor-pointer"
                     onClick={() => setShowChangePasswordModal(true)}>
                     Change password here
                     </button>
@@ -89,33 +120,17 @@ const Home = () => {
             )}
 
             {showChangePasswordModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm relative">
-                    <button
-                        className="absolute top-2 right-3 text-gray-600 hover:text-red-500 text-xl"
-                        onClick={() => setShowChangePasswordModal(false)}
-                    >
-                        &times;
-                    </button>
-                    <h2 className="text-lg font-bold mb-4 text-gray-800">Change Password</h2>
-                    {/* Put your actual change password form here */}
-                    <form>
-                        <input
-                        type="password"
-                        placeholder="New password"
-                        className="w-full p-2 mb-3 border border-gray-300 rounded"
-                        />
-                        <input
-                        type="password"
-                        placeholder="Confirm password"
-                        className="w-full p-2 mb-4 border border-gray-300 rounded"
-                        />
-                        <button className="bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded w-full">
-                        Update Password
-                        </button>
-                    </form>
-                    </div>
-                </div>
+            resetQuestion ? (
+                <ChangePasswordPopup
+                resetQuestion={resetQuestion}
+                resetAnswer={resetAnswer}
+                passwordHistory={passwordHistory}
+                passwordDate={passwordDate}
+                onClose={() => setShowChangePasswordModal(false)}
+                />
+            ) : (
+                <div className="text-sm text-gray-600 text-center mt-4">Loading password question...</div>
+            )
             )}
 
 
