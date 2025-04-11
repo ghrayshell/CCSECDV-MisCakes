@@ -165,7 +165,9 @@ const loginController = {
         if (!user) return res.status(404).json({ message: "User not found." });
     
         // Check reset answer
-        if (user.resetAnswer !== resetAnswer) {
+        const isResetCorrect = user.resetAnswer.trim().toLowerCase() === resetAnswer.trim().toLowerCase();
+
+        if (!isResetCorrect) {
           return res.status(400).json({ message: "Incorrect answer to reset question." });
         }
     
@@ -182,7 +184,7 @@ const loginController = {
         // Save current password to history
         if (user.password) {
           user.passwordHistory.unshift(user.password);
-          user.passwordHistory = user.passwordHistory.slice(0, 5);
+          user.passwordHistory = user.passwordHistory.slice(0, 10);
         }
     
         user.password = newHashedPassword;
