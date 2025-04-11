@@ -68,6 +68,23 @@ const userController = {
         } catch (error) {
             res.status(500).json({ error: 'Error: ' + error.message });
         }
+    },
+    getRole: async function(req, res){
+        try {
+            // Check if the user is authenticated by checking the session
+            const user = await User.findById(req.session.user).select('role');
+            if (req.session && user) {
+              // If authenticated, send back the user's role
+              return res.json({ role: user.role });
+            } else {
+              // If not authenticated, return an error message
+              return res.status(401).json({ message: 'Not authenticated' });
+            }
+          } catch (error) {
+            // Handle any unexpected errors
+            console.error(error);
+            return res.status(500).json({ message: 'Internal server error' });
+          }
     }
 }
 

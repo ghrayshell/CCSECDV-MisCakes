@@ -49,4 +49,6 @@ app.put("/users/:id/role", userController.updateRole);
 app.post('/check-email', loginController.checkEmail);
 app.get('/logout', loginController.logoutUser);
 
+app.get('/status', userController.getRole);
+
 module.exports = app;
