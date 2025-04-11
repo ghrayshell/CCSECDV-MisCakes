@@ -3,10 +3,10 @@ const bcrypt = require('bcryptjs');
 
 const userController = {
     addUser: async function(req, res){
-        const {name, email, password} = req.body;
+        const {name, email, password, resetQuestion, resetAnswer} = req.body;
 
-        if (!name || !email || !password) {
-            return res.status(400).json({ message: "Name, email, and password are required" });
+        if (!name || !email || !password || !resetQuestion || !resetAnswer) {
+            return res.status(400).json({ message: "Name, email, password, password reset question, and password reset answer are required" });
         }
 
         try{
@@ -16,7 +16,11 @@ const userController = {
             const newUser = new User({
                 name,
                 email,
-                password: hashedPassword
+                password: hashedPassword,
+                passwordHistory:[hashedPassword],
+                passwordDate: new Date(),
+                resetQuestion,
+                resetAnswer
             });
 
             await newUser.save()
