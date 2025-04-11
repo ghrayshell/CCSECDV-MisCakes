@@ -226,7 +226,7 @@ const deleteButton = {
                             <input name="name" value={form.name} onChange={handleChange} placeholder="Product name" />
                         </td>
                         <td style={tdStyle}>
-                            <input name="price" value={form.price} onChange={handleChange} placeholder="Price" />
+                            <input type="number" name="price" value={form.price} onChange={handleChange} placeholder="Price" />
                         </td>
                         <td style={tdStyle}>
                             <input name="description" value={form.description} onChange={handleChange} placeholder="Description" style={{ width: '100%' }} />
